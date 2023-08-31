@@ -1,0 +1,10 @@
+project: nethopper-feature
+destination:
+  namespace: nethopper
+  server: https://kubernetes.default.svc
+loki: 
+  source:
+    targetRevision: 5.15.0
+promtail:
+  source:
+    targetRevision: 6.15.0

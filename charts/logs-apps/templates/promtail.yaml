@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: promtail
+spec:
+  destination:
+    name: ''
+    namespace: nethopper
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: ''
+    repoURL: 'https://grafana.github.io/helm-charts'
+    targetRevision: {{ .Values.promtail.source.targetRevision }}
+    chart: promtail
+    helm:
+      values: ''
+  sources: []
+  project: nethopper-feature
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
