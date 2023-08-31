@@ -14,22 +14,6 @@ This repository contains a collection of Nethopper Helm Charts for deployment on
 To add this repository to your local Helm configuration, run:
 
 ```bash
-# Helm Charts Repository
-
-## Overview
-
-This repository contains a collection of Nethopper Helm Charts for deployment on Kubernetes clusters.
-
-## Requirements
-
-- Kubernetes 1.22+
-- Helm 3.0+
-
-## Repository Installation
-
-To add this repository to your local Helm configuration, run:
-
-```bash
 helm repo add nh-charts helm repo add nh-charts https://raw.githubusercontent.com/nethopper2/helm-charts/gh-pages/ --username <gh-username> --password <token>
 helm repo update
 ```
