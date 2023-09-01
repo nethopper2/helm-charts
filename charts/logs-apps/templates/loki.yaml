@@ -26,9 +26,11 @@ spec:
   project: {{ .Values.project }}
   syncPolicy:
     automated:
-      prune: false
-      selfHeal: false
+      prune: true
+      selfHeal: true
     syncOptions:
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
       - ApplyOutOfSyncOnly=true
       - Replace=true
       - PruneLast=true
