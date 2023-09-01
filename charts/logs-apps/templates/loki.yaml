@@ -15,14 +15,13 @@ spec:
     helm:
       values: |-
         loki:
-          loki:
-            commonConfig:
-              replication_factor: 1
-            auth_enabled: false
-            storage:
-              type: 'filesystem'
-          singleBinary:
-            replicas: 1
+          commonConfig:
+            replication_factor: 1
+          auth_enabled: false
+          storage:
+            type: 'filesystem'
+        singleBinary:
+          replicas: 1
   sources: []
   project: {{ .Values.project }}
   syncPolicy:
