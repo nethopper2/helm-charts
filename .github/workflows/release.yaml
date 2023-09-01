@@ -31,3 +31,4 @@ jobs:
         env:
           CR_TOKEN: "${{ github.token }}"
           CR_SKIP_EXISTING: false
+          CR_PACKAGES_WITH_INDEX: true
