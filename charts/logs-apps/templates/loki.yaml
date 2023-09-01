@@ -28,3 +28,7 @@ spec:
     automated:
       prune: false
       selfHeal: false
+    syncOptions:
+      - ApplyOutOfSyncOnly=true
+      - Replace=true
+      - PruneLast=true
