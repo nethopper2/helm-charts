@@ -28,7 +28,8 @@ jobs:
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.5.0
+        with:
+          skip_existing: false
+          packages_with_index: true
         env:
           CR_TOKEN: "${{ github.token }}"
-          CR_SKIP_EXISTING: false
-          CR_PACKAGES_WITH_INDEX: true
