@@ -14,15 +14,14 @@ This repository contains a collection of Nethopper Helm Charts for deployment on
 To add this repository to your local Helm configuration, run:
 
 ```bash
-helm repo add nh-charts https://
+helm repo add nh-charts https://nethopper2.github.io/helm-charts/
 helm repo update
 ```
 
 ## Available Charts
 
-- `chart-1`
-- `chart-2`
-- `chart-3`
+- `logs-apps`
+- `example`
 
 ## Chart Installation
 
