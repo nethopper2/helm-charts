@@ -13,7 +13,8 @@ spec:
     targetRevision: {{ .Values.promtail.source.targetRevision }}
     chart: promtail
     helm:
-      values: ''
+      values: |-
+        # Default values for promtail.
   sources: []
   project: nethopper-feature
   syncPolicy:
