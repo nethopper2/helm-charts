@@ -22,6 +22,10 @@ spec:
             type: 'filesystem'
         singleBinary:
           replicas: 1
+        monitoring:
+          selfMonitoring:
+            grafanaAgent:
+              installOperator: false
   sources: []
   project: {{ .Values.project }}
   syncPolicy:
