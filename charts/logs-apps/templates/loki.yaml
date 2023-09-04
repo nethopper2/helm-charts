@@ -22,6 +22,8 @@ spec:
             type: 'filesystem'
         singleBinary:
           replicas: 1
+          persistence:
+            enableStatefulSetAutoDeletePVC: false
         monitoring:
           selfMonitoring:
             grafanaAgent:
