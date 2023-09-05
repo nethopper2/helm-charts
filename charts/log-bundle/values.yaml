@@ -5,6 +5,22 @@ destination:
 loki: 
   source:
     targetRevision: 5.15.0
+  values:
+    loki:
+      commonConfig:
+        replication_factor: 1
+      auth_enabled: false
+      storage:
+        type: 'filesystem'
+    singleBinary:
+      replicas: 1
+      persistence:
+        enableStatefulSetAutoDeletePVC: false
+    monitoring:
+      selfMonitoring:
+        grafanaAgent:
+          installOperator: false
 promtail:
   source:
     targetRevision: 6.15.0
+  values: {}

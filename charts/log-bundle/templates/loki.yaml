@@ -16,20 +16,7 @@ spec:
     chart: loki
     helm:
       values: |-
-        loki:
-          commonConfig:
-            replication_factor: 1
-          auth_enabled: false
-          storage:
-            type: 'filesystem'
-        singleBinary:
-          replicas: 1
-          persistence:
-            enableStatefulSetAutoDeletePVC: false
-        monitoring:
-          selfMonitoring:
-            grafanaAgent:
-              installOperator: false
+        {{- toYaml .Values.loki.values | nindent 8 }}
   sources: []
   project: {{ .Values.project }}
   syncPolicy:

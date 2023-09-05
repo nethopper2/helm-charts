@@ -16,7 +16,7 @@ spec:
     chart: promtail
     helm:
       values: |-
-        # Default values for promtail.
+        {{- toYaml .Values.promtail.values | nindent 8 }}
   sources: []
   project: nethopper-feature
   syncPolicy:
