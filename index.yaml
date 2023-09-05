@@ -14,6 +14,16 @@ entries:
   log-bundle:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2023-09-05T14:30:36.894391871Z"
+    description: Argo applications for logs
+    digest: 0c624c19b533c7dc387e73919d84923a36fa1f2a73a2f415f9bbb8950abb20f9
+    name: log-bundle
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/log-bundle-0.1.19/log-bundle-0.1.19.tgz
+    version: 0.1.19
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2023-09-05T14:07:56.29343375Z"
     description: Argo applications for logs
     digest: a53a528d6a059e6ffc6d3af8ab35996ff603efe7d292a6a9dbbbfa11e3de1109
@@ -203,4 +213,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/logs-apps-0.1.0/logs-apps-0.1.0.tgz
     version: 0.1.0
-generated: "2023-09-05T14:07:56.293574357Z"
+generated: "2023-09-05T14:30:36.894436871Z"
