@@ -20,7 +20,7 @@ helm repo update
 
 ## Available Charts
 
-- `logs-apps`
+- `log-bundle`
 - `example`
 
 ## Chart Installation
