@@ -7,8 +7,8 @@ metadata:
 spec:
   destination:
     name: ''
-    namespace: nethopper
-    server: 'https://kubernetes.default.svc'
+    namespace: {{ .Values.destination.namespace }}
+    server: {{ .Values.destination.server }}
   source:
     path: ''
     repoURL: 'https://grafana.github.io/helm-charts'
