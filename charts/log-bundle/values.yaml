@@ -23,4 +23,6 @@ loki:
 promtail:
   source:
     targetRevision: 6.15.0
-  values: {}
+  values:
+    config:
+      enableTracing: false
