@@ -1,0 +1,24 @@
+{{- if .Values.datasources }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-datasources
+  labels:
+    grafana_datasource: "1"
+data:
+  loki-stack-datasource.yaml: |-
+    apiVersion: 1
+    datasources:
+{{- range .Values.datasources }}
+    - name: {{ .name }}
+      type: loki
+      access: proxy
+      url: {{ .url }}
+      version: 1
+      isDefault: false
+      uid: {{ .name}}
+      jsonData:
+        httpMethod: POST
+        timeInterval: 30s
+{{- end }}
+{{- end }}
