@@ -9,16 +9,17 @@ data:
   loki-stack-datasource.yaml: |-
     apiVersion: 1
     datasources:
-{{- range .Values.datasources }}
+  {{- $datasources := .Values.datasources | fromYaml }}
+  {{- range $datasources.toAdd }}
     - name: {{ .name }}
       type: loki
       access: proxy
       url: {{ .url }}
       version: 1
       isDefault: false
-      uid: {{ .name}}
+      uid: {{ .name }}
       jsonData:
         httpMethod: POST
         timeInterval: 30s
-{{- end }}
+  {{- end }}
 {{- end }}

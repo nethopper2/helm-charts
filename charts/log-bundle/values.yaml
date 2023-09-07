@@ -26,8 +26,9 @@ promtail:
   values:
     config:
       enableTracing: false
-datasources: []
-  # - name: datasource-1
-  #   url: http://datasource-1.default.svc.cluster.local
-  # - name: datasource-2
-  #   url: http://datasource-2.default.svc.cluster.local
+datasources: "" #|-
+  # toAdd:
+  #   - name: datasource-1
+  #     url: http://datasource-1.default.svc.cluster.local
+  #   - name: datasource-2
+  #     url: http://datasource-2.default.svc.cluster.local
