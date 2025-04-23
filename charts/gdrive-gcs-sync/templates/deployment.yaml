@@ -48,6 +48,17 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
+          {{- range .Values.structuredEnvVars }}
+            - name: {{ .name }}
+              {{- if .valueFrom }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .valueFrom.secret }}
+                  key: {{ .valueFrom.key }}
+              {{- else }}
+              value: {{ .value }}
+              {{- end }}
+          {{- end }}
           {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
           {{- end }}
