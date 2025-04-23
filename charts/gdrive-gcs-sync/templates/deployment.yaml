@@ -48,17 +48,22 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-          {{- range .Values.structuredEnvVars }}
-            - name: {{ .name }}
-              {{- if .valueFrom }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .valueFrom.secret }}
-                  key: {{ .valueFrom.key }}
-              {{- else }}
-              value: {{ .value }}
-              {{- end }}
-          {{- end }}
+          {{ if .Values.env.GCS_BUCKET_NAME }}
+            - name: GCS_BUCKET_NAME
+              value: {{ .Values.env.GCS_BUCKET_NAME }}
+          {{ end }}
+          {{ if .Values.env.DRIVE_FOLDER_ID }}
+            - name: DRIVE_FOLDER_ID
+              value: {{ .Values.env.DRIVE_FOLDER_ID }}
+          {{ end }}
+          {{ if .Values.env.GOOGLE_API_SCOPES }}
+            - name: GOOGLE_API_SCOPES
+              value: {{ .Values.env.GOOGLE_API_SCOPES }}
+          {{ end }}
+          {{ if .Values.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64 }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+              value: {{ .Values.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64 }}
+          {{ end }}
           {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
           {{- end }}
