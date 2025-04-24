@@ -14,6 +14,16 @@ entries:
   gdrive-gcs-sync:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-04-24T14:53:44.545532794Z"
+    description: A Helm chart for Kubernetes
+    digest: 504a0fedcc5de9c506a7268e7e4650badb8da8b71ca2a8e3cb9bbdc189a09353
+    name: gdrive-gcs-sync
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/gdrive-gcs-sync-0.1.8/gdrive-gcs-sync-0.1.8.tgz
+    version: 0.1.8
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-04-23T13:22:43.031532114Z"
     description: A Helm chart for Kubernetes
     digest: b2ad10611ecffab1815b70ac03ea2adf23f19e6f2cefd17402aaa8f479919eff
@@ -164,4 +174,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/nh-frontend-0.1.0/nh-frontend-0.1.0.tgz
     version: 0.1.0
-generated: "2025-04-23T13:22:43.031588169Z"
+generated: "2025-04-24T14:53:44.545590231Z"
