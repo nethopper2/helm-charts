@@ -60,9 +60,16 @@ spec:
             - name: GOOGLE_API_SCOPES
               value: {{ .Values.env.GOOGLE_API_SCOPES }}
           {{ end }}
-          {{ if .Values.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64 }}
+          {{ if .Values.env.GOOGLE_APPLICATION_CREDENTIALS_SECRET_REF }}
             - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
-              value: {{ .Values.env.GOOGLE_APPLICATION_CREDENTIALS_BASE64 }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.GOOGLE_APPLICATION_CREDENTIALS_SECRET_REF }}
+                  key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+          {{ end }}
+          {{ if .Values.env.ALLOWED_EXTENSIONS }}
+            - name: ALLOWED_EXTENSIONS
+              value: {{ .Values.env.ALLOWED_EXTENSIONS }}
           {{ end }}
           {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
