@@ -53,9 +53,14 @@ spec:
                 secretKeyRef:
                   name: google-service-account-credentials
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64   # the Secret key
-          envFrom:
-            - configMapRef:
-              name: {{ .Values.private-ai-storage-ui.sharedConfigMap }}
+            - name: GCS_BUCKET_NAME # Environment variable name
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.private-ai-storage-ui.sharedConfigMap }}
+                  key: GCS_BUCKET_NAME # The key inside the config map
+          # envFrom:
+          #   - configMapRef:
+          #     name: {{ .Values.private-ai-storage-ui.sharedConfigMap }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
