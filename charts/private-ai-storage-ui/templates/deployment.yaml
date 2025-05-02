@@ -55,7 +55,7 @@ spec:
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64   # the Secret key
           envFrom:
             - configMapRef:
-              name: {{ .Values["private-ai-storage-ui"].sharedConfigMap }}
+              name: {{ .Values.privateAiStorageUi.sharedConfigMap }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
