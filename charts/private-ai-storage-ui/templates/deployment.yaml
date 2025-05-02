@@ -56,7 +56,6 @@ spec:
           envFrom:
             - configMapRef:
               name: {{ .Values.sharedConfigMap }}
-              # name: {{ .Values.privateAiStorageUi.sharedConfigMap }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
