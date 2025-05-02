@@ -48,11 +48,14 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: GOOGLE_CREDENTIALS_JSON
+            - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
               valueFrom:
                 secretKeyRef:
                   name: google-service-account-credentials
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64   # the Secret key
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.sharedConfigMapName }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
