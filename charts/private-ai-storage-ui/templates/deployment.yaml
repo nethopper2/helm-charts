@@ -53,7 +53,7 @@ spec:
                 secretKeyRef:
                   name: google-service-account-credentials
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64   # the Secret key
-            - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+            - name: POSTGRES_CREDENTIALS
               valueFrom:
                 secretKeyRef:
                   name: emeralds-private-ai-rag-postgresql
