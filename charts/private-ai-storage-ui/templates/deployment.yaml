@@ -53,6 +53,11 @@ spec:
                 secretKeyRef:
                   name: google-service-account-credentials
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64   # the Secret key
+            - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+              valueFrom:
+                secretKeyRef:
+                  name: emeralds-private-ai-rag-postgresql
+                  key: postgres-password
           envFrom:
             - configMapRef:
                 name: {{ .Values.sharedConfigMap }}
