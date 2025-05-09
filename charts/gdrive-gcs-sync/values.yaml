@@ -8,7 +8,7 @@ image:
   repository: nethopper/gdrive-gcs-sync
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.0.9"
+  tag: "1.0.10"
 
 imagePullSecrets: []
 nameOverride: ""
