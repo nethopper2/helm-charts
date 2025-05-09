@@ -66,6 +66,22 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.googleApplicationCredentialsSecretRef }}
+                  key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.postgressHost }}
+                  key: postgres-host
+            - name: POSTGRES_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.postgressSecret }}
+                  key: postgres-password
           envFrom:
             - configMapRef:
                 name: {{ .Values.sharedConfigMap }}
