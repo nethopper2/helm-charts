@@ -80,3 +80,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# availabe shared config options
+# sharedConfigMap: 
+# sharedSecrets: 
