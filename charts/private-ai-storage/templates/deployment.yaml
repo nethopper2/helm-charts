@@ -66,17 +66,6 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          env:
-            - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
-              valueFrom:
-                secretKeyRef:
-                  name: google-service-account-credentials
-                  key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
-            - name: POSTGRES_CREDENTIALS
-              valueFrom:
-                secretKeyRef:
-                  name: emeralds-private-ai-rag-postgresql
-                  key: postgres-password
           envFrom:
             - configMapRef:
                 name: {{ .Values.sharedConfigMap }}
