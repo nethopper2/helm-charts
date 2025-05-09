@@ -347,6 +347,16 @@ entries:
     version: 0.1.0
   private-ai-storage:
   - apiVersion: v2
+    appVersion: 1.0.1
+    created: "2025-05-09T13:48:53.425592333Z"
+    description: A Helm chart for Kubernetes
+    digest: b8e131602376da7f5b2b45065a84d4ab02df2a02ffb48a9125bfd7879311773f
+    name: private-ai-storage
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/private-ai-storage-0.1.1/private-ai-storage-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
     appVersion: 1.0.0
     created: "2025-05-09T11:40:05.664698304Z"
     description: A Helm chart for Kubernetes
@@ -527,4 +537,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/private-ai-storage-ui-0.1.0/private-ai-storage-ui-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-09T13:00:47.054459282Z"
+generated: "2025-05-09T13:48:53.425754926Z"
