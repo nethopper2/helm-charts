@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "private-ai-storage-ui.fullname" . }}
+  name: {{ include "private-ai-storage.fullname" . }}
   labels:
-    {{- include "private-ai-storage-ui.labels" . | nindent 4 }}
+    {{- include "private-ai-storage.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "private-ai-storage-ui.selectorLabels" . | nindent 6 }}
+      {{- include "private-ai-storage.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,41 +18,60 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "private-ai-storage-ui.selectorLabels" . | nindent 8 }}
+        {{- include "private-ai-storage.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "private-ai-storage-ui.serviceAccountName" . }}
+      serviceAccountName: {{ include "private-ai-storage.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.targetPort }} # 3000, Not service.port!
+              containerPort: {{ .Values.service.port }}
               protocol: TCP
+          {{- with .Values.livenessProbe }}
           livenessProbe:
             httpGet:
               path: /
               port: http
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
           readinessProbe:
             httpGet:
               path: /
               port: http
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
               valueFrom:
                 secretKeyRef:
                   name: google-service-account-credentials
-                  key: GOOGLE_APPLICATION_CREDENTIALS_BASE64   # the Secret key
+                  key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
             - name: POSTGRES_CREDENTIALS
               valueFrom:
                 secretKeyRef:
@@ -61,6 +80,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Values.sharedConfigMap }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
