@@ -73,11 +73,11 @@ spec:
                   name: {{ .Values.global.googleApplicationCredentialsSecretRef }}
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
             - name: POSTGRES_HOST
-              value: {{ .Values.rag.postgresHost }}
+              value: {{ .Values.config.postgresHost }}
             - name: POSTGRES_CREDENTIALS
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.rag.postgresSecret }}
+                  name: {{ .Values.config.postgresSecret }}
                   key: postgres-password
           envFrom:
             - configMapRef:
