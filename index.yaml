@@ -14,6 +14,16 @@ entries:
   gdrive-gcs-sync:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-05-10T13:08:14.555908384Z"
+    description: A Helm chart for Kubernetes
+    digest: 422efb43829f26fb9dd20bfc6eead3a9f25f1292319384bb1b8526065ce82024
+    name: gdrive-gcs-sync
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/gdrive-gcs-sync-0.1.19/gdrive-gcs-sync-0.1.19.tgz
+    version: 0.1.19
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-05-09T16:42:06.642367234Z"
     description: A Helm chart for Kubernetes
     digest: 1cf06c97f538f6c95e42cf1b8d2b12c54c685c4ad8c14f18710990e4abae5149
@@ -647,4 +657,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/private-ai-storage-ui-0.1.0/private-ai-storage-ui-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-09T16:42:06.642593326Z"
+generated: "2025-05-10T13:08:14.556169471Z"
