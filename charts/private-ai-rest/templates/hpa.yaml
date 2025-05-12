@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "private-ai-storage.fullname" . }}
+  name: {{ include "private-ai-rest.fullname" . }}
   labels:
-    {{- include "private-ai-storage.labels" . | nindent 4 }}
+    {{- include "private-ai-rest.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "private-ai-storage.fullname" . }}
+    name: {{ include "private-ai-rest.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:

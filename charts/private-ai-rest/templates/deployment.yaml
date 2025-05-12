@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "private-ai-storage.fullname" . }}
+  name: {{ include "private-ai-rest.fullname" . }}
   labels:
-    {{- include "private-ai-storage.labels" . | nindent 4 }}
+    {{- include "private-ai-rest.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "private-ai-storage.selectorLabels" . | nindent 6 }}
+      {{- include "private-ai-rest.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "private-ai-storage.labels" . | nindent 8 }}
+        {{- include "private-ai-rest.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -27,7 +27,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "private-ai-storage.serviceAccountName" . }}
+      serviceAccountName: {{ include "private-ai-rest.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}

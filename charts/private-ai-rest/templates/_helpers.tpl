@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "private-ai-storage.name" -}}
+{{- define "private-ai-rest.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "private-ai-storage.fullname" -}}
+{{- define "private-ai-rest.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "private-ai-storage.chart" -}}
+{{- define "private-ai-rest.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "private-ai-storage.labels" -}}
-helm.sh/chart: {{ include "private-ai-storage.chart" . }}
-{{ include "private-ai-storage.selectorLabels" . }}
+{{- define "private-ai-rest.labels" -}}
+helm.sh/chart: {{ include "private-ai-rest.chart" . }}
+{{ include "private-ai-rest.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "private-ai-storage.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "private-ai-storage.name" . }}
+{{- define "private-ai-rest.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "private-ai-rest.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "private-ai-storage.serviceAccountName" -}}
+{{- define "private-ai-rest.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "private-ai-storage.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "private-ai-rest.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
