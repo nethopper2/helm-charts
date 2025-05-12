@@ -84,3 +84,11 @@ affinity: {}
 # availabe shared config options
 # sharedConfigMap: 
 # sharedSecrets: 
+
+# Environment variables
+env: {}
+  # GCS_BUCKET_NAME: ""
+  # DRIVE_FOLDER_ID: ""
+  # GOOGLE_API_SCOPES: ""
+  # GOOGLE_APPLICATION_CREDENTIALS_SECRET_REF: ""
+  # ALLOWED_EXTENSIONS: ""
