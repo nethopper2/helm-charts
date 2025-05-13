@@ -81,7 +81,9 @@ spec:
                   key: postgres-password
           envFrom:
             - configMapRef:
-                name: {{ .Values.sharedConfigMap }}
+                name: {{ .Values.global.sharedConfigMap }}
+            - secretRef:
+                name: {{ .Values.global.sharedSecrets }}
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
