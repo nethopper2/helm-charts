@@ -75,13 +75,13 @@ spec:
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
           {{- end }}
           envFrom:
-          {{- if .Values.extraEnvVarsCM }}
+          {{- if .Values.global.extraEnvVarsCM }}
             - configMapRef:
-                name: {{ .Values.extraEnvVarsCM }}
+                name: {{ .Values.global.extraEnvVarsCM }}
           {{- end }}
-          {{- if .Values.extraEnvVarsSecret }}
+          {{- if .Values.global.extraEnvVarsSecret }}
             - secretRef:
-                name: {{ .Values.extraEnvVarsSecret }}
+                name: {{ .Values.global.extraEnvVarsSecret }}
           {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

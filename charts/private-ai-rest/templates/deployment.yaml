@@ -67,21 +67,24 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
+          {{- if .Values.postgresql.database }}
+            - name: POSTGRES_DATABASE
+              value: {{ .Values.postgresql.database }}
+          {{- end }}
             - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.global.googleApplicationCredentialsSecretRef }}
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
-            - name: POSTGRES_HOST
-              value: {{ .Values.config.postgresHost }}
-            - name: POSTGRES_CREDENTIALS
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.config.postgresSecret }}
-                  key: postgres-password
           envFrom:
+          {{- if .Values.global.extraEnvVarsCM }}
             - configMapRef:
-                name: {{ .Values.sharedConfigMap }}
+                name: {{ .Values.global.extraEnvVarsCM }}
+          {{- end }}
+          {{- if .Values.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ .Values.global.extraEnvVarsSecret }}
+          {{- end }}
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
