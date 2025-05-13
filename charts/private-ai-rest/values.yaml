@@ -127,3 +127,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+postgresql: {}
+  # database: private-ai-rest
