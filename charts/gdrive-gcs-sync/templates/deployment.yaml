@@ -60,11 +60,11 @@ spec:
             - name: GOOGLE_API_SCOPES
               value: {{ .Values.env.GOOGLE_API_SCOPES }}
           {{ end }}
-          {{ if .Values.env.GOOGLE_APPLICATION_CREDENTIALS_SECRET_REF }}
+          {{ if .Values.global.googleApplicationCredentialsSecretRef }}
             - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.env.GOOGLE_APPLICATION_CREDENTIALS_SECRET_REF }}
+                  name: {{ .Values.global.googleApplicationCredentialsSecretRef }}
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
           {{ end }}
           {{ if .Values.env.ALLOWED_EXTENSIONS }}
