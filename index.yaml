@@ -848,4 +848,15 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/private-ai-storage-ui-0.1.0/private-ai-storage-ui-0.1.0.tgz
     version: 0.1.0
-generated: "2025-07-01T21:47:34.518616374Z"
+  ragflow:
+  - apiVersion: v2
+    appVersion: dev
+    created: "2025-08-12T12:36:36.076997081Z"
+    description: A Helm chart for deploying RAGFlow on Kubernetes
+    digest: 5512c5b1f289eb93218fb6d15ab2fe27910e411a3d139b7e378d75dd99985cf0
+    name: ragflow
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-08-12T12:36:36.077208466Z"
