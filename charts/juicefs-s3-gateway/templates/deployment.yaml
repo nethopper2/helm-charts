@@ -51,7 +51,6 @@ spec:
                 secretKeyRef:
                   name: juicefs-secret
                   key: secret-key
-                      env:
             {{- if .Values.secret.token }}
             - name: TOKEN
               valueFrom:
