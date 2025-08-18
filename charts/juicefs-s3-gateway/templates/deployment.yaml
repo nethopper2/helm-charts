@@ -107,7 +107,7 @@ spec:
             {{- if .Values.secret.token }}
             - juicefs gateway ${VOL_NAME} 0.0.0.0:{{ .Values.port }} {{ .Values.options }} {{ if .Values.secret.encrypt_rsa_key }}--rsa-key /root/encrypt_rsa_key.pem{{ end }}
             {{- else }}
-            - juicefs gateway ${metaurl} 0.0.0.0:{{ .Values.port }} --metrics=0.0.0.0:{{ .Values.metricsPort }} {{ .Values.options }} {{ if .Values.secret.encrypt_rsa_key }}--rsa-key /root/encrypt_rsa_key.pem{{ end }}
+            - juicefs gateway ${METAURL} 0.0.0.0:{{ .Values.port }} --metrics=0.0.0.0:{{ .Values.metricsPort }} {{ .Values.options }} {{ if .Values.secret.encrypt_rsa_key }}--rsa-key /root/encrypt_rsa_key.pem{{ end }}
             {{- end }}
           env:
             {{- if .Values.secret.token }}
@@ -121,6 +121,12 @@ spec:
                 secretKeyRef:
                   name: juicefs-secret
                   key: name
+            {{- else }}
+            - name: METAURL
+              valueFrom:
+                secretKeyRef:
+                  name: juicefs-secret
+                  key: metaurl
             {{- end }}
             - name: MINIO_ROOT_USER
               valueFrom:
