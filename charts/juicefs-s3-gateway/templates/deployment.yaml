@@ -79,6 +79,7 @@ spec:
                 secretKeyRef:
                   name: juicefs-secret
                   key: JFS_RSA_PASSPHRASE
+            {{- end }}
             {{- if .Values.initEnvs }}
 {{ toYaml .Values.initEnvs | indent 12 }}
             {{- end }}
