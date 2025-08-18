@@ -51,6 +51,34 @@ spec:
                 secretKeyRef:
                   name: juicefs-secret
                   key: secret-key
+                      env:
+            {{- if .Values.secret.token }}
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: juicefs-secret
+                  key: token
+            - name: VOL_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: juicefs-secret
+            {{- end }}
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: juicefs-secret
+                  key: access-key
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: juicefs-secret
+                  key: secret-key
+            {{- if .Values.secret.JFS_RSA_PASSPHRASE }}
+            - name: JFS_RSA_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: juicefs-secret
+                  key: JFS_RSA_PASSPHRASE
             {{- if .Values.initEnvs }}
 {{ toYaml .Values.initEnvs | indent 12 }}
             {{- end }}
@@ -79,7 +107,7 @@ spec:
             {{- if .Values.secret.token }}
             - juicefs gateway ${VOL_NAME} 0.0.0.0:{{ .Values.port }} {{ .Values.options }} {{ if .Values.secret.encrypt_rsa_key }}--rsa-key /root/encrypt_rsa_key.pem{{ end }}
             {{- else }}
-            - juicefs gateway ${METAURL} 0.0.0.0:{{ .Values.port }} --metrics=0.0.0.0:{{ .Values.metricsPort }} {{ .Values.options }} {{ if .Values.secret.encrypt_rsa_key }}--rsa-key /root/encrypt_rsa_key.pem{{ end }}
+            - juicefs gateway ${metaurl} 0.0.0.0:{{ .Values.port }} --metrics=0.0.0.0:{{ .Values.metricsPort }} {{ .Values.options }} {{ if .Values.secret.encrypt_rsa_key }}--rsa-key /root/encrypt_rsa_key.pem{{ end }}
             {{- end }}
           env:
             {{- if .Values.secret.token }}
@@ -93,12 +121,6 @@ spec:
                 secretKeyRef:
                   name: juicefs-secret
                   key: name
-            {{- else }}
-            - name: METAURL
-              valueFrom:
-                secretKeyRef:
-                  name: juicefs-secret
-                  key: metaurl
             {{- end }}
             - name: MINIO_ROOT_USER
               valueFrom:
