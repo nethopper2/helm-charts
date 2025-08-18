@@ -282,6 +282,17 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/gdrive-gcs-sync-0.1.0/gdrive-gcs-sync-0.1.0.tgz
     version: 0.1.0
+  juicefs-s3-gateway:
+  - apiVersion: v2
+    appVersion: 1.6.0
+    created: "2025-08-18T12:18:11.720244281Z"
+    description: A Helm chart for JuiceFS S3 Gateway
+    digest: 89090828f57f2a8ecffdd100248d9bcd3dfc05684653d36ae6f46cabcd347d02
+    name: juicefs-s3-gateway
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/juicefs-s3-gateway-0.1.0/juicefs-s3-gateway-0.1.0.tgz
+    version: 0.1.0
   log-bundle:
   - apiVersion: v2
     appVersion: 1.0.0
@@ -859,4 +870,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-12T12:36:36.077208466Z"
+generated: "2025-08-18T12:18:11.720420852Z"
