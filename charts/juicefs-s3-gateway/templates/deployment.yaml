@@ -1,0 +1,263 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "juicefs-s3-gateway.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "juicefs-s3-gateway.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "juicefs-s3-gateway.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "juicefs-s3-gateway.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "juicefs-s3-gateway.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: format
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          {{- if .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+            - sh
+            - -c
+            {{- if .Values.secret.config.token }}
+            - juicefs auth ${name} --token=${token} {{ if .Values.secret.config.bucket }}--bucket=${bucket}{{ end }} --access-key=${accesskey} --secret-key=${secretkey}
+            {{- else }}
+            - juicefs format ${metaurl} ${name} --storage=${storage} --bucket=${bucket} --access-key=${accesskey} --secret-key=${secretkey} ${format_options}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ include "juicefs-s3-gateway.secretName" . }}
+            {{- if .Values.configMap.create }}
+            - configMapRef:
+                name: {{ include "juicefs-s3-gateway.configMapName" . }}
+            {{- end }}
+          env:
+            - name: accesskey
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: access-key
+            - name: secretkey
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: secret-key
+            - name: name
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: name
+            - name: bucket
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: bucket
+            {{- if .Values.configMap.create }}
+            - name: format_options
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "juicefs-s3-gateway.configMapName" . }}
+                  key: format-options
+            {{- end }}
+            {{- if .Values.secret.config.token }}
+            - name: token
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: token
+            {{- else }}
+            - name: metaurl
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: metaurl
+            - name: storage
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: storage
+            {{- end }}
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: access-key
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: secret-key
+            {{- if .Values.secret.config.rsaPassphrase }}
+            - name: JFS_RSA_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: rsa-passphrase
+            {{- end }}
+            {{- if .Values.initEnvs }}
+            {{- toYaml .Values.initEnvs | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.secret.config.token }}
+            - mountPath: /root/.juicefs
+              name: jfs-root-dir
+            {{- end }}
+            {{- if .Values.secret.config.rsaKey }}
+            - name: rsa-key
+              mountPath: "/root"
+              readOnly: true
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      containers:
+        - name: gateway
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          {{- if .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          command:
+            - sh
+            - -c
+            {{- if .Values.secret.config.token }}
+            - juicefs gateway ${name} 0.0.0.0:{{ .Values.port }} ${gateway_options} {{ if .Values.secret.config.rsaKey }}--rsa-key /root/rsa-key.pem{{ end }}
+            {{- else }}
+            - juicefs gateway ${metaurl} 0.0.0.0:{{ .Values.port }} --metrics=0.0.0.0:{{ .Values.metricsPort }} ${gateway_options} {{ if .Values.secret.config.rsaKey }}--rsa-key /root/rsa-key.pem{{ end }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ include "juicefs-s3-gateway.secretName" . }}
+            {{- if .Values.configMap.create }}
+            - configMapRef:
+                name: {{ include "juicefs-s3-gateway.configMapName" . }}
+            {{- end }}
+          env:
+            - name: name
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: name
+            {{- if .Values.configMap.create }}
+            - name: gateway_options
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "juicefs-s3-gateway.configMapName" . }}
+                  key: gateway-options
+            {{- end }}
+            {{- if .Values.secret.config.token }}
+            - name: token
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: token
+            {{- else }}
+            - name: metaurl
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: metaurl
+            {{- end }}
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: access-key
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: secret-key
+            {{- if .Values.secret.config.rsaPassphrase }}
+            - name: JFS_RSA_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: rsa-passphrase
+            {{- end }}
+            {{- if .Values.envs }}
+            {{- toYaml .Values.envs | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.port }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.metricsPort }}
+              protocol: TCP
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- if .Values.secret.config.token }}
+            - mountPath: /root/.juicefs
+              name: jfs-root-dir
+            {{- end }}
+            {{- if .Values.secret.config.rsaKey }}
+            - name: rsa-key
+              mountPath: "/root"
+              readOnly: true
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
+      volumes:
+        {{- if .Values.secret.config.token }}
+        - emptyDir: {}
+          name: jfs-root-dir
+        {{- end }}
+        {{- if .Values.secret.config.rsaKey }}
+        - name: rsa-key
+          secret:
+            secretName: {{ include "juicefs-s3-gateway.secretName" . }}
+            items:
+              - key: rsa-key
+                path: rsa-key.pem
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}

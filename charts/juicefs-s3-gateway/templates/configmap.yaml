@@ -1,0 +1,19 @@
+{{- if .Values.configMap.create }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "juicefs-s3-gateway.configMapName" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "juicefs-s3-gateway.labels" . | nindent 4 }}
+    {{- with .Values.configMap.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.configMap.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  format-options: {{ .Values.configMap.formatOptions | quote }}
+  gateway-options: {{ .Values.configMap.options | quote }}
+{{- end }}
