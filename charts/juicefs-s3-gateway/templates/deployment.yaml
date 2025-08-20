@@ -41,9 +41,9 @@ spec:
             - sh
             - -c
             {{- if .Values.secret.config.token }}
-            - juicefs auth ${name} --token=${token} {{ if .Values.secret.config.bucket }}--bucket=${bucket}{{ end }} --access-key=${accesskey} --secret-key=${secretkey}
+            - juicefs auth ${name} --token=${token} {{ if .Values.secret.config.bucket }}--bucket=${bucket}{{ end }}
             {{- else }}
-            - juicefs format ${metaurl} ${name} --storage=${storage} --bucket=${bucket} --access-key=${accesskey} --secret-key=${secretkey} ${format_options}
+            - juicefs format ${metaurl} ${name} --storage=${storage} --bucket=${bucket} ${format_options}
             {{- end }}
           envFrom:
             - secretRef:
@@ -53,16 +53,6 @@ spec:
                 name: {{ include "juicefs-s3-gateway.configMapName" . }}
             {{- end }}
           env:
-            - name: accesskey
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "juicefs-s3-gateway.secretName" . }}
-                  key: access-key
-            - name: secretkey
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "juicefs-s3-gateway.secretName" . }}
-                  key: secret-key
             - name: name
               valueFrom:
                 secretKeyRef:
@@ -102,12 +92,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
-                  key: access-key
+                  key: minio-root-user
             - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
-                  key: secret-key
+                  key: minio-root-password
             {{- if .Values.secret.config.rsaPassphrase }}
             - name: JFS_RSA_PASSPHRASE
               valueFrom:
@@ -184,12 +174,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
-                  key: access-key
+                  key: minio-root-user
             - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
-                  key: secret-key
+                  key: minio-root-password
             {{- if .Values.secret.config.rsaPassphrase }}
             - name: JFS_RSA_PASSPHRASE
               valueFrom:

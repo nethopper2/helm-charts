@@ -150,14 +150,13 @@ secret:
     # -- Object storage type, such as `s3`, `gs`, `oss`
     # Ref: https://juicefs.com/docs/community/how_to_setup_object_storage
     storage: ""
-    # -- Access key for object storage (auto-generated if not specified)
-    accessKey: ""
-    # -- Secret key for object storage (auto-generated if not specified)
-    secretKey: ""
     # -- Object storage bucket or full endpoint
     # CE Ref: https://juicefs.com/docs/community/how_to_setup_object_storage
     # EE Ref (see --bucket): https://juicefs.com/docs/cloud/reference/command_reference/#auth
     bucket: ""
+    # NOTE: Authentication is provided via mounted volumes:
+    # - S3: Mount AWS credentials to /root/.aws/ (credentials and config files)
+    # - GCS: Mount service account key to /var/secrets/google/ and set GOOGLE_APPLICATION_CREDENTIALS
     # -- RSA passphrase for encryption
     rsaPassphrase: ""
     # -- RSA private key for encryption
