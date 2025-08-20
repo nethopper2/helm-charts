@@ -49,3 +49,36 @@ Selector labels
 app.kubernetes.io/name: {{ include "juicefs-s3-gateway.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "juicefs-s3-gateway.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "juicefs-s3-gateway.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create the name of the secret to use
+*/}}
+{{- define "juicefs-s3-gateway.secretName" -}}
+{{- if .Values.secret.create }}
+{{- default (include "juicefs-s3-gateway.fullname" .) .Values.secret.name }}
+{{- else }}
+{{- required "secret.name is required when secret.create is false" .Values.secret.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create the name of the configmap to use
+*/}}
+{{- define "juicefs-s3-gateway.configMapName" -}}
+{{- if .Values.configMap.create }}
+{{- default (include "juicefs-s3-gateway.fullname" .) .Values.configMap.name }}
+{{- else }}
+{{- required "configMap.name is required when configMap.create is false" .Values.configMap.name }}
+{{- end }}
+{{- end }}

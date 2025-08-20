@@ -15,7 +15,44 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# -- Service account configuration
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- Whether to automount the service account token
+  automountServiceAccountToken: false
+
 podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  # -- Run as non-root user
+  runAsNonRoot: true
+  # -- Set filesystem group
+  fsGroup: 65534
+  # -- Run as specific user ID
+  runAsUser: 65534
+  # -- Run as specific group ID
+  runAsGroup: 65534
+
+securityContext:
+  # -- Drop all capabilities
+  capabilities:
+    drop:
+    - ALL
+  # -- Read-only root filesystem
+  readOnlyRootFilesystem: true
+  # -- Run as non-root
+  runAsNonRoot: true
+  # -- Run as specific user ID
+  runAsUser: 65534
+  # -- Disallow privilege escalation
+  allowPrivilegeEscalation: false
 
 service:
   type: ClusterIP
@@ -44,6 +81,26 @@ resources:
     cpu: 1000m
     memory: 1Gi
 
+# -- Liveness probe configuration
+livenessProbe: {}
+  # httpGet:
+  #   path: /
+  #   port: http
+  # initialDelaySeconds: 30
+  # periodSeconds: 10
+  # timeoutSeconds: 5
+  # failureThreshold: 3
+
+# -- Readiness probe configuration
+readinessProbe: {}
+  # httpGet:
+  #   path: /
+  #   port: http
+  # initialDelaySeconds: 5
+  # periodSeconds: 10
+  # timeoutSeconds: 5
+  # failureThreshold: 3
+
 hostNetwork: false
 nodeSelector: {}
 tolerations: []
@@ -69,42 +126,64 @@ extraVolumeMounts:
   #  - name: ceph-secret
   #    mountPath: "/etc/ceph"
 
+# -- Secret configuration for JuiceFS
 secret:
-  enabled: true
-  # -- The JuiceFS file system name.
+  # -- Whether to create a new secret or use an existing one
+  create: true
+  # -- Name of the secret to use. If not specified, a name is generated using the fullname template
   name: ""
-  # -- JuiceFS Enterprise Edition file system token, if this token is specified,
-  # this helm chart then assumes JuiceFS EE and neglect all CE configurations
-  token: ""
-  # -- Connection URL for metadata engine (e.g. Redis)
-  # Ref: https://juicefs.com/docs/community/databases_for_metadata
-  metaurl: ""
-  # -- Object storage type, such as `s3`, `gs`, `oss`
-  # Ref: https://juicefs.com/docs/community/how_to_setup_object_storage
-  storage: ""
-  # -- Access key for object storage
-  accessKey: ""
-  # -- Secret key for object storage
-  secretKey: ""
-  # -- Object storage bucket or full endpoint
-  # CE Ref: https://juicefs.com/docs/community/how_to_setup_object_storage
-  # EE Ref (see --bucket): https://juicefs.com/docs/cloud/reference/command_reference/#auth
-  bucket: ""
-  # -- Encryption settings
-  # JFS_RSA_PASSPHRASE: xxx
-  # encrypt_rsa_key: |
-  #   -----BEGIN RSA PRIVATE KEY-----
-  #   ...
-  #   -----END RSA PRIVATE KEY-----
+  # -- Annotations to add to the created secret
+  annotations: {}
+  # -- Labels to add to the created secret
+  labels: {}
+  
+  # -- JuiceFS configuration (only used when secret.create is true)
+  config:
+    # -- The JuiceFS file system name
+    name: ""
+    # -- JuiceFS Enterprise Edition file system token, if this token is specified,
+    # this helm chart then assumes JuiceFS EE and neglect all CE configurations
+    token: ""
+    # -- Connection URL for metadata engine (e.g. Redis)
+    # Ref: https://juicefs.com/docs/community/databases_for_metadata
+    metaurl: ""
+    # -- Object storage type, such as `s3`, `gs`, `oss`
+    # Ref: https://juicefs.com/docs/community/how_to_setup_object_storage
+    storage: ""
+    # -- Access key for object storage (auto-generated if not specified)
+    accessKey: ""
+    # -- Secret key for object storage (auto-generated if not specified)
+    secretKey: ""
+    # -- Object storage bucket or full endpoint
+    # CE Ref: https://juicefs.com/docs/community/how_to_setup_object_storage
+    # EE Ref (see --bucket): https://juicefs.com/docs/cloud/reference/command_reference/#auth
+    bucket: ""
+    # -- RSA passphrase for encryption
+    rsaPassphrase: ""
+    # -- RSA private key for encryption
+    # rsaKey: |
+    #   -----BEGIN RSA PRIVATE KEY-----
+    #   ...
+    #   -----END RSA PRIVATE KEY-----
+    rsaKey: ""
 
 
-# -- JuiceFS format options. Separated by spaces
-# Example: "--inodes=1000000 --block-size=4M"
-# Ref: https://juicefs.com/docs/community/command_reference#format
-formatOptions: ""
-
-# -- Gateway Options. Separated by spaces
-# Example: "--get-timeout=60 --put-timeout=60"
-# CE Ref: https://juicefs.com/docs/community/command_reference#gateway
-# EE Ref: https://juicefs.com/docs/cloud/reference/command_reference/#gateway
-options: ""
+# -- ConfigMap configuration for non-sensitive data
+configMap:
+  # -- Whether to create a configmap
+  create: true
+  # -- Name of the configmap to use. If not specified, a name is generated using the fullname template
+  name: ""
+  # -- Annotations to add to the created configmap
+  annotations: {}
+  # -- Labels to add to the created configmap
+  labels: {}
+  # -- JuiceFS format options. Separated by spaces
+  # Example: "--inodes=1000000 --block-size=4M"
+  # Ref: https://juicefs.com/docs/community/command_reference#format
+  formatOptions: ""
+  # -- Gateway Options. Separated by spaces
+  # Example: "--get-timeout=60 --put-timeout=60"
+  # CE Ref: https://juicefs.com/docs/community/command_reference#gateway
+  # EE Ref: https://juicefs.com/docs/cloud/reference/command_reference/#gateway
+  options: ""

@@ -14,7 +14,7 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: juicefs-s3-gateway
+  name: {{ include "juicefs-s3-gateway.fullname" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "juicefs-s3-gateway.labels" . | nindent 4 }}
@@ -48,11 +48,11 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: juicefs-s3-gateway
+                name: {{ include "juicefs-s3-gateway.fullname" $ }}
                 port:
                   number: {{ $port }}
               {{- else }}
-              serviceName: juicefs-s3-gateway
+              serviceName: {{ include "juicefs-s3-gateway.fullname" $ }}
               servicePort: {{ $port }}
               {{- end }}
           {{- end }}
