@@ -266,7 +266,7 @@ spec:
           emptyDir: {}
         - name: object-storage-credentials
           secret:
-            secretName: {{ include "juicefs-s3-gateway.secretName" . }}
+            secretName: {{ .Values.secret.config.credentialsSecret }}
         {{- if .Values.secret.config.token }}
         - emptyDir: {}
           name: jfs-root-dir

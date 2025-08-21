@@ -139,6 +139,8 @@ secret:
   
   # -- JuiceFS configuration (only used when secret.create is true)
   config:
+    # -- Name of the secret to use for credentials
+    credentialsSecret: ""
     # -- The JuiceFS file system name
     name: ""
     # -- JuiceFS Enterprise Edition file system token, if this token is specified,
