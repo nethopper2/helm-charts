@@ -105,7 +105,7 @@ spec:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
                   key: rsa-passphrase
             {{- end }}
-            {{- if eq .Values.secret.config.store "gs" }}
+            {{- if eq .Values.secret.config.storage "gs" }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/secrets/google/key.json
             {{- end }}
@@ -122,12 +122,12 @@ spec:
               mountPath: "/root"
               readOnly: true
             {{- end }}
-            {{- if eq .Values.secret.config.store "gs" }}
+            {{- if eq .Values.secret.config.storage "gs" }}
             - name: object-storage-credentials
               mountPath: /var/secrets/google
               readOnly: true
             {{- end }}
-            {{- if eq .Values.secret.config.store "s3" }}
+            {{- if eq .Values.secret.config.storage "s3" }}
             - name: object-storage-credentials
               mountPath: /root/.aws
               readOnly: true
@@ -233,12 +233,12 @@ spec:
               mountPath: "/root"
               readOnly: true
             {{- end }}
-            {{- if eq .Values.secret.config.store "gs" }}
+            {{- if eq .Values.secret.config.storage "gs" }}
             - name: object-storage-credentials
               mountPath: /var/secrets/google
               readOnly: true
             {{- end }}
-            {{- if eq .Values.secret.config.store "s3" }}
+            {{- if eq .Values.secret.config.storage "s3" }}
             - name: object-storage-credentials
               mountPath: /root/.aws
               readOnly: true
