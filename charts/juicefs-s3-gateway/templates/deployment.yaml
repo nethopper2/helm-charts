@@ -105,6 +105,10 @@ spec:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
                   key: rsa-passphrase
             {{- end }}
+            {{- if eq .Values.secret.config.store "gs" }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secrets/google/key.json
+            {{- end }}
             {{- if .Values.initEnvs }}
             {{- toYaml .Values.initEnvs | nindent 12 }}
             {{- end }}
@@ -116,6 +120,16 @@ spec:
             {{- if .Values.secret.config.rsaKey }}
             - name: rsa-key
               mountPath: "/root"
+              readOnly: true
+            {{- end }}
+            {{- if eq .Values.secret.config.store "gs" }}
+            - name: object-storage-credentials
+              mountPath: /var/secrets/google
+              readOnly: true
+            {{- end }}
+            {{- if eq .Values.secret.config.store "s3" }}
+            - name: object-storage-credentials
+              mountPath: /root/.aws
               readOnly: true
             {{- end }}
             {{- with .Values.extraVolumeMounts }}
@@ -208,6 +222,8 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+            - name: minio-config
+              mountPath: /nonexistent
             {{- if .Values.secret.config.token }}
             - mountPath: /root/.juicefs
               name: jfs-root-dir
@@ -215,6 +231,16 @@ spec:
             {{- if .Values.secret.config.rsaKey }}
             - name: rsa-key
               mountPath: "/root"
+              readOnly: true
+            {{- end }}
+            {{- if eq .Values.secret.config.store "gs" }}
+            - name: object-storage-credentials
+              mountPath: /var/secrets/google
+              readOnly: true
+            {{- end }}
+            {{- if eq .Values.secret.config.store "s3" }}
+            - name: object-storage-credentials
+              mountPath: /root/.aws
               readOnly: true
             {{- end }}
             {{- with .Values.extraVolumeMounts }}
@@ -236,6 +262,11 @@ spec:
       hostNetwork: true
       {{- end }}
       volumes:
+        - name: minio-config
+          emptyDir: {}
+        - name: object-storage-credentials
+          secret:
+            secretName: {{ include "juicefs-s3-gateway.secretName" . }}
         {{- if .Values.secret.config.token }}
         - emptyDir: {}
           name: jfs-root-dir
