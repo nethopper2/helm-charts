@@ -509,6 +509,16 @@ entries:
     version: 0.1.0
   private-ai-rest:
   - apiVersion: v2
+    appVersion: 1.0.13
+    created: "2025-08-22T15:48:30.489262289Z"
+    description: A Helm chart for Kubernetes
+    digest: 6c8b9512d7109b5ba73a76a8e9ab5a9f5cef4b5bc4e2d9160f76d6c2b856a50a
+    name: private-ai-rest
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/private-ai-rest-0.1.22/private-ai-rest-0.1.22.tgz
+    version: 0.1.22
+  - apiVersion: v2
     appVersion: 1.0.12
     created: "2025-08-20T15:52:28.635218132Z"
     description: A Helm chart for Kubernetes
@@ -1001,4 +1011,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-22T12:52:55.760478717Z"
+generated: "2025-08-22T15:48:30.489604873Z"
