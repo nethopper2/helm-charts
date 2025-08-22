@@ -73,6 +73,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.config.juiceFsSecretName }}
                   key: minio-root-password
+            - name: JUICEFS_S3_GATEWAY_VOLUME_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: name
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
