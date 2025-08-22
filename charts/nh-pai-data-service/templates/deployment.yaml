@@ -67,12 +67,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.config.juiceFsSecretName }}
-                  key: access-key
+                  key: minio-root-user
             - name: JUICEFS_S3_GATEWAY_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.config.juiceFsSecretName }}
-                  key: secret-key
+                  key: minio-root-password
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
