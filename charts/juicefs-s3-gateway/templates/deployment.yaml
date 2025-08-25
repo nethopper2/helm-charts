@@ -201,6 +201,13 @@ spec:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
                   key: rsa-passphrase
             {{- end }}
+            {{- if contains "postgres" .Values.secret.config.metaurl }}
+            - name: META_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.postgres.auth.existingSecret }}
+                  key: {{ .Values.global.postgres.auth.secretKeys.adminPasswordKey }}
+            {{- end }}
             {{- if .Values.envs }}
             {{- toYaml .Values.envs | nindent 12 }}
             {{- end }}
