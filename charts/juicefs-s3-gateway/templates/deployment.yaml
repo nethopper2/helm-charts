@@ -208,6 +208,10 @@ spec:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
                   key: rsa-passphrase
             {{- end }}
+            {{- if eq .Values.secret.config.storage "gs" }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secrets/google/key.json
+            {{- end }}
             {{- if contains "postgres" .Values.secret.config.metaurl }}
             - name: META_PASSWORD
               valueFrom:
