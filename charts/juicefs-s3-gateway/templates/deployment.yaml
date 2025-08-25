@@ -205,8 +205,8 @@ spec:
             - name: META_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.global.postgres.auth.existingSecret }}
-                  key: {{ .Values.global.postgres.auth.secretKeys.adminPasswordKey }}
+                  name: {{ .Values.global.postgresql.auth.existingSecret }}
+                  key: {{ .Values.global.postgresql.auth.secretKeys.adminPasswordKey }}
             {{- end }}
             {{- if .Values.envs }}
             {{- toYaml .Values.envs | nindent 12 }}
