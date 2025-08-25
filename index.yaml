@@ -285,6 +285,16 @@ entries:
   juicefs-s3-gateway:
   - apiVersion: v2
     appVersion: 1.6.0
+    created: "2025-08-25T12:08:39.615231622Z"
+    description: A Helm chart for JuiceFS S3 Gateway
+    digest: 3fef2960d6b6a3da21a6537444306d08a06bae8d5091d522966aa843a29d97a1
+    name: juicefs-s3-gateway
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/juicefs-s3-gateway-0.1.10/juicefs-s3-gateway-0.1.10.tgz
+    version: 0.1.10
+  - apiVersion: v2
+    appVersion: 1.6.0
     created: "2025-08-21T12:49:16.649797155Z"
     description: A Helm chart for JuiceFS S3 Gateway
     digest: 93b6dcf6523958ce3b5091d3944524167836249abaf814570e2dd3d1ae586f06
@@ -1021,4 +1031,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-22T16:36:52.177717301Z"
+generated: "2025-08-25T12:08:39.615468167Z"
