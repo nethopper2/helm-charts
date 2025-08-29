@@ -78,6 +78,15 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.config.juiceFsSecretName }}
                   key: name
+          envFrom:
+          {{- if .Values.global.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ .Values.global.extraEnvVarsCM }}
+          {{- end }}
+          {{- if .Values.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ .Values.global.extraEnvVarsSecret }}
+          {{- end }}
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
