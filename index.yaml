@@ -508,6 +508,16 @@ entries:
   nh-pai-data-service:
   - apiVersion: v2
     appVersion: 1.0.3
+    created: "2025-08-29T14:38:08.574897308Z"
+    description: A Helm chart for Kubernetes
+    digest: 3baf42b22b9919473563782bbc0ec255ab99addb2fe0921a38e94adc2ab09616
+    name: nh-pai-data-service
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/nh-pai-data-service-0.1.7/nh-pai-data-service-0.1.7.tgz
+    version: 0.1.7
+  - apiVersion: v2
+    appVersion: 1.0.3
     created: "2025-08-29T13:02:52.139761489Z"
     description: A Helm chart for Kubernetes
     digest: a868b8745d0d3ed4d1797829b3d5c5ff7082450d114efd6dd6cb82a30be5c93c
@@ -1101,4 +1111,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-29T13:02:52.140031502Z"
+generated: "2025-08-29T14:38:08.575081662Z"
