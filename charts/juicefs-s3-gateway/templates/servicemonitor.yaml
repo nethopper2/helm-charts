@@ -1,0 +1,45 @@
+{{- if and .Values.metrics.enabled .Values.metrics.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "juicefs-s3-gateway.fullname" . }}
+  namespace: {{ default .Release.Namespace .Values.metrics.serviceMonitor.namespace | quote }}
+  labels:
+    {{- include "juicefs-s3-gateway.labels" . | nindent 4 }}
+    {{- with .Values.metrics.serviceMonitor.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.metrics.serviceMonitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  endpoints:
+    - port: {{ .Values.metrics.serviceMonitor.port | default "http-metrics" }}
+      path: {{ .Values.metrics.serviceMonitor.path | default "/metrics" }}
+      {{- if .Values.metrics.serviceMonitor.interval }}
+      interval: {{ .Values.metrics.serviceMonitor.interval }}
+      {{- end }}
+      {{- if .Values.metrics.serviceMonitor.scrapeTimeout }}
+      scrapeTimeout: {{ .Values.metrics.serviceMonitor.scrapeTimeout }}
+      {{- end }}
+      {{- with .Values.metrics.serviceMonitor.relabelings }}
+      relabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.metrics.serviceMonitor.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.metrics.serviceMonitor.tlsConfig }}
+      scheme: https
+      tlsConfig:
+        {{- toYaml .Values.metrics.serviceMonitor.tlsConfig | nindent 8 }}
+      {{- end }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace | quote }}
+  selector:
+    matchLabels:
+      {{- include "juicefs-s3-gateway.selectorLabels" . | nindent 6 }}
+{{- end }}

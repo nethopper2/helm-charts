@@ -12,7 +12,7 @@ spec:
       targetPort: {{ .Values.port }}
       protocol: TCP
       name: http
-    - name: metrics
+    - name: http-metrics
       port: {{ .Values.metricsPort }}
       targetPort: {{ .Values.metricsPort }}
   selector:
