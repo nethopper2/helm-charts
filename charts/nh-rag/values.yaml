@@ -141,3 +141,21 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# This is for configuring Prometheus metrics collection
+metrics:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    namespace: ""
+    labels: {}
+    annotations: {}
+    jobLabel: "app.kubernetes.io/name"
+    port: "http"
+    path: "/metrics"
+    interval: "30s"
+    scrapeTimeout: "10s"
+    honorLabels: false
+    selector: {}
+    metricRelabelings: []
+    relabelings: []
