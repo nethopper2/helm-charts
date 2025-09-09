@@ -61,6 +61,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
+            - name: AUTO_RUN_MIGRATIONS
+              value: {{ .Values.autoRunMigrations }}
             - name: POSTGRES_DATABASE
               value: {{ .Values.config.postgresDatabase }}
             - name: JUICEFS_S3_GATEWAY_ENDPOINT
