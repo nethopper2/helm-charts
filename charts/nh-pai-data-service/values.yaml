@@ -139,4 +139,4 @@ config:
   juiceFsUrl: ""
 
 # This is for setting up the auto run migrations
-autoRunMigrations: ""
+autoRunMigrations: "true"
