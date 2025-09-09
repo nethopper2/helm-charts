@@ -61,6 +61,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
+            - name: POSTGRES_DATABASE
+              value: {{ .Values.config.postgresDatabase }}
             - name: JUICEFS_S3_GATEWAY_ENDPOINT
               value: {{ .Values.config.juiceFsUrl }}
             - name: JUICEFS_S3_GATEWAY_ACCESS_KEY
@@ -78,6 +80,16 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.config.juiceFsSecretName }}
                   key: name
+            - name: JUICEFS_S3_GATEWAY_STORAGE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: storage
+            - name: JUICEFS_S3_GATEWAY_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: bucket
           envFrom:
           {{- if .Values.global.extraEnvVarsCM }}
             - configMapRef:

@@ -134,6 +134,7 @@ affinity: {}
 
 # Configuration
 config:
+  postgresDatabase: ""
   juiceFsSecretName: ""
   juiceFsUrl: ""
 
