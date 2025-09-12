@@ -7,6 +7,7 @@ global: {}
   # googleApplicationCredentialsSecretRef: ""
   # extraEnvVarsCM: ""
   # extraEnvVarsSecret: ""
+  # awsOpenAIKeySecretRef: ""
 
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
@@ -111,6 +112,8 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 env:
+  BEDROCK_MODEL_ID: "openai.gpt-oss-20b-1:0"
+  AWS_OPENAI_API_BASE_URL: "https://bedrock-runtime.us-west-2.amazonaws.com/openai/v1"
   LLAMAINDEX_MODEL_NAME: "llama3.1:8b"
   QDRANT_COLLECTION: "docs"
   EMBEDDINGS_MODEL: "nomic-ai/nomic-embed-text-v1.5"
