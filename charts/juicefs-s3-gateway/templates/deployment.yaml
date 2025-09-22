@@ -129,12 +129,12 @@ spec:
               mountPath: "/root"
               readOnly: true
             {{- end }}
-            {{- if eq .Values.secret.config.storage "gs" }}
+            {{- if and (eq .Values.secret.config.storage "gs") .Values.secret.config.credentialsSecret }}
             - name: object-storage-credentials
               mountPath: /var/secrets/google
               readOnly: true
             {{- end }}
-            {{- if eq .Values.secret.config.storage "s3" }}
+            {{- if and (eq .Values.secret.config.storage "s3") .Values.secret.config.credentialsSecret }}
             - name: object-storage-credentials
               mountPath: /root/.aws
               readOnly: true
@@ -251,12 +251,12 @@ spec:
               mountPath: "/root"
               readOnly: true
             {{- end }}
-            {{- if eq .Values.secret.config.storage "gs" }}
+            {{- if and (eq .Values.secret.config.storage "gs" ) .Values.secret.config.credentialsSecret }}
             - name: object-storage-credentials
               mountPath: /var/secrets/google
               readOnly: true
             {{- end }}
-            {{- if eq .Values.secret.config.storage "s3" }}
+            {{- if and (eq .Values.secret.config.storage "s3") .Values.secret.config.credentialsSecret }}
             - name: object-storage-credentials
               mountPath: /root/.aws
               readOnly: true
@@ -282,9 +282,11 @@ spec:
       volumes:
         - name: minio-config
           emptyDir: {}
+        {{- if .Values.secret.config.credentialsSecret }}
         - name: object-storage-credentials
           secret:
             secretName: {{ .Values.secret.config.credentialsSecret }}
+        {{- end }}
         {{- if .Values.secret.config.token }}
         - emptyDir: {}
           name: jfs-root-dir
