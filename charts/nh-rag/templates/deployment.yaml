@@ -111,6 +111,33 @@ spec:
                   name: {{ .Values.global.awsOpenAIKeySecretRef }}
                   key: AWS_OPENAI_API_KEY
           {{ end }}
+            - name: JUICEFS_S3_GATEWAY_ENDPOINT
+                value: {{ .Values.config.juiceFsUrl }}
+            - name: JUICEFS_S3_GATEWAY_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: minio-root-user
+            - name: JUICEFS_S3_GATEWAY_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: minio-root-password
+            - name: JUICEFS_S3_GATEWAY_VOLUME_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: name
+            - name: JUICEFS_S3_GATEWAY_STORAGE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: storage
+            - name: JUICEFS_S3_GATEWAY_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: bucket
           envFrom:
           {{- if .Values.global.extraEnvVarsCM }}
             - configMapRef:
