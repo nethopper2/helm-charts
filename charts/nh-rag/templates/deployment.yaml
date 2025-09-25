@@ -112,7 +112,7 @@ spec:
                   key: AWS_OPENAI_API_KEY
           {{ end }}
             - name: JUICEFS_S3_GATEWAY_ENDPOINT
-                value: {{ .Values.config.juiceFsUrl }}
+              value: {{ .Values.config.juiceFsUrl }}
             - name: JUICEFS_S3_GATEWAY_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
