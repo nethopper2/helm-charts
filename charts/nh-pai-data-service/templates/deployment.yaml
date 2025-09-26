@@ -93,7 +93,7 @@ spec:
                   name: {{ .Values.config.juiceFsSecretName }}
                   key: bucket
             - name: TOOLS_CONFIG
-              value: {{ .Values.toolsConfig }}
+              value: {{ .Values.toolsConfig | quote }}
           envFrom:
           {{- if .Values.global.extraEnvVarsCM }}
             - configMapRef:
