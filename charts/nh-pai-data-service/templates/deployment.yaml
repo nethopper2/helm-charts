@@ -92,6 +92,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.config.juiceFsSecretName }}
                   key: bucket
+            - name: TOOLS_CONFIG
+              value: {{ .Values.toolsConfig }}
           envFrom:
           {{- if .Values.global.extraEnvVarsCM }}
             - configMapRef:

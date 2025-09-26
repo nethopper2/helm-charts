@@ -140,3 +140,5 @@ config:
 
 # This is for setting up the auto run migrations
 autoRunMigrations: "true"
+
+toolsConfig: '{"token-replacer":{"data-sources":[{"name":"Mineral","sourcePaths":["/Mineral/Handbooks/tokenized-documents"]}]}}'
