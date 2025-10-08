@@ -1,5 +1,27 @@
 apiVersion: v1
 entries:
+  docling-serve:
+  - apiVersion: v2
+    appVersion: v1.5.1
+    created: "2025-10-08T11:26:55.178794309Z"
+    description: A Helm chart for Docling Serve - AI-powered document processing service
+    digest: 57834b1fa9710439caf225e5e9d1c74f8582bfadba6d60bfc86c979c041827a1
+    home: https://github.com/DS4SD/docling
+    keywords:
+    - docling
+    - document-processing
+    - ai
+    - gpu
+    maintainers:
+    - email: support@nethopper.io
+      name: Nethopper
+    name: docling-serve
+    sources:
+    - https://github.com/DS4SD/docling
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/docling-serve-0.1.0/docling-serve-0.1.0.tgz
+    version: 0.1.0
   example:
   - apiVersion: v2
     appVersion: 1.16.0
@@ -1331,4 +1353,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-08T11:03:40.802178496Z"
+generated: "2025-10-08T11:26:55.179138001Z"
