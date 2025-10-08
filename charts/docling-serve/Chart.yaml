@@ -1,0 +1,17 @@
+apiVersion: v2
+name: docling-serve
+description: A Helm chart for Docling Serve - AI-powered document processing service
+type: application
+version: 0.1.0
+appVersion: "v1.5.1"
+keywords:
+  - docling
+  - document-processing
+  - ai
+  - gpu
+home: https://github.com/DS4SD/docling
+sources:
+  - https://github.com/DS4SD/docling
+maintainers:
+  - name: Nethopper
+    email: support@nethopper.io
