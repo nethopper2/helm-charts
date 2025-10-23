@@ -284,5 +284,5 @@ juicefsConfig:
     - mc alias set jfs ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY}
     - mc admin config set jfs notify_webhook:1 queue_limit="0" endpoint="${WEBHOOK_ENDPOINT}" queue_dir=""
     - sleep 45
-    - mc event remove --force
+    - mc event remove jfs/${BUCKET_NAME} --force
     - mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put
