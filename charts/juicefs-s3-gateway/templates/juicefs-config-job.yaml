@@ -1,0 +1,91 @@
+{{- if .Values.juicefsConfig.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "juicefs-s3-gateway.fullname" . }}-config
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "juicefs-s3-gateway.labels" . | nindent 4 }}
+    app.kubernetes.io/component: config-job
+    {{- with .Values.juicefsConfig.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.juicefsConfig.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  backoffLimit: {{ .Values.juicefsConfig.backoffLimit }}
+  {{- if .Values.juicefsConfig.ttlSecondsAfterFinished }}
+  ttlSecondsAfterFinished: {{ .Values.juicefsConfig.ttlSecondsAfterFinished }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "juicefs-s3-gateway.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: config-job
+        {{- with .Values.juicefsConfig.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.juicefsConfig.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      restartPolicy: {{ .Values.juicefsConfig.restartPolicy }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "juicefs-s3-gateway.serviceAccountName" . }}
+      {{- with .Values.juicefsConfig.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.juicefsConfig.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.juicefsConfig.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: mc-config
+          image: {{ .Values.juicefsConfig.image.repository }}:{{ .Values.juicefsConfig.image.tag }}
+          imagePullPolicy: {{ .Values.juicefsConfig.image.pullPolicy }}
+          env:
+            - name: GATEWAY_ENDPOINT
+              value: "http://{{ include "juicefs-s3-gateway.fullname" . }}:{{ .Values.port }}"
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: minio-root-user
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: minio-root-password
+            - name: WEBHOOK_ENDPOINT
+              value: {{ .Values.juicefsConfig.webhookEndpoint }}
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: name
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "Starting JuiceFS S3 Gateway configuration..."
+              echo "Gateway endpoint: ${GATEWAY_ENDPOINT}"
+              {{- range .Values.juicefsConfig.mcCommands }}
+              echo "Executing: {{ . }}"
+              {{ . }}
+              {{- end }}
+              echo "Configuration completed successfully!"
+          resources:
+            {{- toYaml .Values.juicefsConfig.resources | nindent 12 }}
+{{- end }}
