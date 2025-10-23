@@ -244,7 +244,7 @@ juicefsConfig:
   ttlSecondsAfterFinished: 86400
   # -- Additional annotations for the job
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
   # -- Additional labels for the job
@@ -283,6 +283,6 @@ juicefsConfig:
   mcCommands:
     - mc alias set jfs ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY}
     - mc admin config set jfs notify_webhook:1 queue_limit="0" endpoint="${WEBHOOK_ENDPOINT}" queue_dir=""
-    - sleep 45
+    - sleep 60
     - mc event remove jfs/${BUCKET_NAME} --force
     - mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put
