@@ -239,7 +239,7 @@ juicefsConfig:
   # -- Job restart policy
   restartPolicy: OnFailure
   # -- Number of retries before considering the job as failed
-  backoffLimit: 3
+  backoffLimit: 5
   # -- TTL (seconds) to clean up finished jobs. Set to 0 to keep job history indefinitely
   ttlSecondsAfterFinished: 86400
   # -- Additional annotations for the job
@@ -282,7 +282,7 @@ juicefsConfig:
   #   - mc event add jfs/mybucket arn:minio:sqs::1:webhook --event put --suffix .jpg
   mcCommands:
     - mc alias set jfs ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY}
-    - mc admin config set jfs notify_webhook:1 queue_limit="0" endpoint="${WEBHOOK_ENDPOINT}" queue_dir=""
+    - mc admin config set jfs notify_webhook:1 queue_limit="0" endpoint="${WEBHOOK_ENDPOINT}" queue_dir="/juicefs-queue"
     - sleep 60
     - mc event remove jfs/${BUCKET_NAME} --force
-    - mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put
+    - mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete
