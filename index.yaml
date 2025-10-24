@@ -639,6 +639,16 @@ entries:
     version: 0.1.0
   nh-mcp-server:
   - apiVersion: v2
+    appVersion: 0.0.2
+    created: "2025-10-24T11:21:10.232700304Z"
+    description: A Helm chart for Kubernetes
+    digest: 3843307a983ad95e440847e69ae11e6edc1f30bc417790c3f6eed827bc030ed3
+    name: nh-mcp-server
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/nh-mcp-server-0.2.0/nh-mcp-server-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: v0.0.2
     created: "2025-10-24T11:16:35.477724898Z"
     description: A Helm chart for Kubernetes
@@ -1394,4 +1404,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-24T11:16:35.478021763Z"
+generated: "2025-10-24T11:21:10.232931478Z"
