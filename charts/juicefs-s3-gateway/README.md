@@ -6,6 +6,69 @@ A Helm chart for JuiceFS S3 Gateway
 
 **Homepage:** <https://github.com/juicedata/juicefs>
 
+## Gateway Configuration Sidecar
+
+This chart includes an optional sidecar container that can automatically configure the JuiceFS S3 Gateway after deployment. The sidecar uses MinIO Client (mc) to execute configuration commands once the gateway becomes ready.
+
+### Key Features
+
+- **Automatic Readiness Detection**: The sidecar waits for the gateway to be healthy before executing commands
+- **Configurable Commands**: Define custom mc commands via values to configure webhook notifications, events, and more
+- **Exit After Completion**: By default, the sidecar exits after successful configuration (can be changed for debugging)
+- **Resource Efficient**: Uses minimal CPU and memory resources
+
+### Usage
+
+Enable the sidecar by setting `sidecar.enabled: true` in your values:
+
+```yaml
+sidecar:
+  enabled: true
+  webhookEndpoint: "http://webhook-service:3000"
+  mcCommands:
+    - mc alias set jfs ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY}
+    - mc admin config set jfs notify_webhook:1 queue_limit="0" endpoint="${WEBHOOK_ENDPOINT}" queue_dir="/juicefs-queue"
+    - mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete
+```
+
+### Available Environment Variables
+
+The following variables are available in command templates:
+
+- `GATEWAY_ENDPOINT`: The gateway endpoint (http://localhost:port)
+- `ACCESS_KEY`: From MINIO_ROOT_USER secret
+- `SECRET_KEY`: From MINIO_ROOT_PASSWORD secret
+- `WEBHOOK_ENDPOINT`: The configured webhook service endpoint
+- `BUCKET_NAME`: The JuiceFS bucket/filesystem name
+
+### Migration from v0.1.x
+
+If you were using the `juicefsConfig` Job in v0.1.x, migrate to the sidecar approach:
+
+**Old (v0.1.x - Job approach):**
+```yaml
+juicefsConfig:
+  enabled: true
+  webhookEndpoint: "http://webhook-service:3000"
+  mcCommands:
+    - mc alias set jfs ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY}
+```
+
+**New (v0.2.0+ - Sidecar approach):**
+```yaml
+sidecar:
+  enabled: true
+  webhookEndpoint: "http://webhook-service:3000"
+  mcCommands:
+    - mc alias set jfs ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY}
+```
+
+The main differences:
+- Job runs post-install/post-upgrade; sidecar runs continuously with each pod
+- Sidecar uses `localhost` endpoint (same pod); Job used service endpoint
+- Sidecar exits after completion (unless `keepRunning: true`)
+- No Helm hooks required with sidecar approach
+
 ## Maintainers
 
 | Name | Email | Url |

@@ -216,8 +216,6 @@ configMap:
   # CE Ref: https://juicefs.com/docs/community/command_reference#gateway
   # EE Ref: https://juicefs.com/docs/cloud/reference/command_reference/#gateway
   options: "--get-timeout=60 --put-timeout=60 --keep-etag --object-meta --refresh-iam-interval=30s"
-  # -- Webhook service as a target for Bucket Notifications
-  webhookEndpoint: ""
 
 # -- Metrics configuration
 metrics:
@@ -248,11 +246,12 @@ metrics:
     # -- TLS configuration
     tlsConfig: {}
 
-# -- JuiceFS Gateway Configuration Job
-# This job configures the gateway after deployment using MinIO Client (mc)
+# -- JuiceFS Gateway Configuration Sidecar
+# This sidecar container configures the gateway after it becomes ready using MinIO Client (mc)
+# The sidecar waits for the gateway to be healthy before executing configuration commands
 # Ref: https://juicefs.com/docs/community/guide/gateway/#use-a-webhook-to-publish-events
-juicefsConfig:
-  # -- Enable the configuration job
+sidecar:
+  # -- Enable the configuration sidecar
   enabled: false
   # -- MinIO Client image and version
   # Using the specific version recommended by JuiceFS documentation for compatibility
@@ -260,30 +259,7 @@ juicefsConfig:
     repository: minio/mc
     tag: RELEASE.2021-04-22T17-40-00Z
     pullPolicy: IfNotPresent
-  # -- Job restart policy
-  restartPolicy: OnFailure
-  # -- Number of retries before considering the job as failed
-  backoffLimit: 5
-  # -- TTL (seconds) to clean up finished jobs. Set to 0 to keep job history indefinitely
-  ttlSecondsAfterFinished: 86400
-  # -- Additional annotations for the job
-  annotations:
-    "helm.sh/hook": post-install,post-upgrade
-    "helm.sh/hook-weight": "-10"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-  # -- Additional labels for the job
-  labels: {}
-  # -- Pod annotations for the job
-  podAnnotations: {}
-  # -- Pod labels for the job
-  podLabels: {}
-  # -- Node selector for the job pod
-  nodeSelector: {}
-  # -- Tolerations for the job pod
-  tolerations: []
-  # -- Affinity for the job pod
-  affinity: {}
-  # -- Resource limits and requests for the job
+  # -- Resource limits and requests for the sidecar
   resources:
     limits:
       cpu: 100m
@@ -291,22 +267,17 @@ juicefsConfig:
     requests:
       cpu: 50m
       memory: 64Mi
-  webhookEndpoint: ""
+  keepRunning: false
   # -- List of mc commands to execute for gateway configuration
   # The following variables are available in command templates:
-  # - GATEWAY_ENDPOINT: The gateway service endpoint (http://service-name:port)
+  # - GATEWAY_ENDPOINT: The gateway endpoint (http://localhost:port)
   # - ACCESS_KEY: From MINIO_ROOT_USER secret
   # - SECRET_KEY: From MINIO_ROOT_PASSWORD secret
-  # - WEBHOOK_ENDPOINT: The webhook service endpoint
   # - BUCKET_NAME: The bucket name
   # Example commands for webhook event notifications:
   # mcCommands:
   #   - mc alias set jfs ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY}
-  #   - mc admin config set jfs notify_webhook:1 queue_limit="0" endpoint="http://webhook-service:3000" queue_dir=""
-  #   - mc event add jfs/mybucket arn:minio:sqs::1:webhook --event put --suffix .jpg
+  #   - mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete --ignore-existing
   mcCommands:
     - mc alias set jfs ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY}
-    - mc admin config set jfs notify_webhook:1 queue_limit="0" endpoint="${WEBHOOK_ENDPOINT}" queue_dir="/juicefs-queue"
-    - sleep 60
-    - mc event remove jfs/${BUCKET_NAME} --force
-    - mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete
+    - mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete --ignore-existing

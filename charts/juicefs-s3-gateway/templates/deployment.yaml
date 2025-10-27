@@ -279,6 +279,74 @@ spec:
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+        {{- if .Values.sidecar.enabled }}
+        - name: gateway-config
+          image: {{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}
+          imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
+          env:
+            - name: GATEWAY_ENDPOINT
+              value: "http://localhost:{{ .Values.port }}"
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: minio-root-user
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: minio-root-password
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: name
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "Waiting for JuiceFS S3 Gateway to be ready..."
+
+              # Wait for gateway to be ready (max 5 minutes)
+              TIMEOUT=300
+              ELAPSED=0
+              INTERVAL=5
+
+              while [ $ELAPSED -lt $TIMEOUT ]; do
+                if mc alias set jfs-test ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY} 2>/dev/null; then
+                  echo "Gateway is ready!"
+                  mc alias remove jfs-test
+                  break
+                fi
+                echo "Gateway not ready yet, waiting ${INTERVAL}s... (${ELAPSED}/${TIMEOUT}s elapsed)"
+                sleep ${INTERVAL}
+                ELAPSED=$((ELAPSED + INTERVAL))
+              done
+
+              if [ $ELAPSED -ge $TIMEOUT ]; then
+                echo "ERROR: Gateway did not become ready within ${TIMEOUT} seconds"
+                exit 1
+              fi
+
+              echo "Starting JuiceFS S3 Gateway configuration..."
+              {{- range .Values.sidecar.mcCommands }}
+              echo "Executing: {{ . }}"
+              {{ . }}
+              {{- end }}
+              echo "Configuration completed successfully!"
+
+              # Keep container running if configured (useful for debugging)
+              {{- if .Values.sidecar.keepRunning }}
+              echo "Sidecar configured to keep running. Sleeping indefinitely..."
+              while true; do sleep 3600; done
+              {{- else }}
+              echo "Sidecar exiting successfully."
+              exit 0
+              {{- end }}
+          resources:
+            {{- toYaml .Values.sidecar.resources | nindent 12 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
