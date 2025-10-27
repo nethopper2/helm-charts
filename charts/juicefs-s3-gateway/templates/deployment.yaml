@@ -314,9 +314,8 @@ spec:
               INTERVAL=5
 
               while [ $ELAPSED -lt $TIMEOUT ]; do
-                if mc alias set jfs-test ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY} 2>/dev/null; then
+                if mc --config-dir /tmp/.mc alias set jfs-test ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY} 2>/dev/null; then
                   echo "Gateway is ready!"
-                  mc alias remove jfs-test
                   break
                 fi
                 echo "Gateway not ready yet, waiting ${INTERVAL}s... (${ELAPSED}/${TIMEOUT}s elapsed)"
