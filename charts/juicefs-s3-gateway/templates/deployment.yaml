@@ -285,7 +285,7 @@ spec:
           imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
           env:
             - name: GATEWAY_ENDPOINT
-              value: "http://0.0.0.0:{{ .Values.port }}"
+              value: "http://localhost:{{ .Values.port }}"
             - name: ACCESS_KEY
               valueFrom:
                 secretKeyRef:
@@ -314,7 +314,7 @@ spec:
               INTERVAL=5
 
               while [ $ELAPSED -lt $TIMEOUT ]; do
-                if mc --config-dir /tmp/.mc alias set jfs-test ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY} 2>/dev/null; then
+                if mc --config-dir /tmp/.mc alias set jfs ${GATEWAY_ENDPOINT} ${ACCESS_KEY} ${SECRET_KEY} 2>/dev/null; then
                   echo "Gateway is ready!"
                   break
                 fi
