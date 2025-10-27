@@ -85,6 +85,28 @@ resources:
     cpu: 1000m
     memory: 1Gi
 
+# -- Persistence configuration for the messages directory
+persistence:
+  # -- Enable persistence using PVC
+  enabled: false
+  # -- PVC Storage Class for messages volume
+  # If defined, storageClassName: <storageClass>
+  # If set to "-", storageClassName: "", which disables dynamic provisioning
+  # If undefined (the default) or set to null, no storageClassName spec is
+  # set, choosing the default provisioner
+  storageClass: ""
+  # -- PVC Access Mode for messages volume
+  accessMode: ReadWriteOnce
+  # -- PVC Storage Request for messages volume
+  size: 1Gi
+  # -- Annotations for the PVC
+  annotations: {}
+  # -- Selector to match an existing Persistent Volume (optional)
+  # selector:
+  #   matchLabels:
+  #     app: my-app
+  selector: {}
+
 # -- Liveness probe configuration
 livenessProbe: {}
   # httpGet:
@@ -194,6 +216,8 @@ configMap:
   # CE Ref: https://juicefs.com/docs/community/command_reference#gateway
   # EE Ref: https://juicefs.com/docs/cloud/reference/command_reference/#gateway
   options: "--get-timeout=60 --put-timeout=60 --keep-etag --object-meta --refresh-iam-interval=30s"
+  # -- Webhook service as a target for Bucket Notifications
+  webhookEndpoint: ""
 
 # -- Metrics configuration
 metrics:

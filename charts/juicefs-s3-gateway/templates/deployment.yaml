@@ -191,6 +191,17 @@ spec:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
                   key: metaurl
             {{- end }}
+            - name: MINIO_NOTIFY_WEBHOOK_ENABLE_1
+              value: "on"
+            - name: MINIO_NOTIFY_WEBHOOK_ENDPOINT_1
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "juicefs-s3-gateway.configMapName" . }}
+                  key: webhook-endpoint
+            {{- if .Values.persistence.enabled }}
+            - name: MINIO_NOTIFY_WEBHOOK_QUEUE_DIR_1
+              value: "/messages"
+            {{- end }}
             - name: MINIO_ROOT_USER
               valueFrom:
                 secretKeyRef:
@@ -242,6 +253,10 @@ spec:
           volumeMounts:
             - name: minio-config
               mountPath: /nonexistent
+            {{- if .Values.persistence.enabled }}
+            - name: messages
+              mountPath: /messages
+            {{- end }}
             {{- if .Values.secret.config.token }}
             - mountPath: /root/.juicefs
               name: jfs-root-dir
@@ -282,6 +297,11 @@ spec:
       volumes:
         - name: minio-config
           emptyDir: {}
+        {{- if .Values.persistence.enabled }}
+        - name: messages
+          persistentVolumeClaim:
+            claimName: {{ include "juicefs-s3-gateway.fullname" . }}-messages
+        {{- end }}
         {{- if .Values.secret.config.credentialsSecret }}
         - name: object-storage-credentials
           secret:
