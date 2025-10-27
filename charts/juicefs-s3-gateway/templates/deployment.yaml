@@ -285,7 +285,7 @@ spec:
           imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
           env:
             - name: GATEWAY_ENDPOINT
-              value: "http://localhost:{{ .Values.port }}"
+              value: "http://0.0.0.0:{{ .Values.port }}"
             - name: ACCESS_KEY
               valueFrom:
                 secretKeyRef:
