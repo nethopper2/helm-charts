@@ -134,6 +134,7 @@ affinity: {}
 
 # Configuration
 config:
+  redisUrl: ""
   postgresDatabase: ""
   juiceFsSecretName: ""
   juiceFsUrl: ""
@@ -156,7 +157,6 @@ worker:
     - worker:document-generation
   # Worker-specific environment variables
   env:
-    redisUrl: "redis://redis:6379"
     workerConcurrency: "2"
   # Worker pod annotations
   podAnnotations: {}
