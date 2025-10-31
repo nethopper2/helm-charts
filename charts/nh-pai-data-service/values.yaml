@@ -142,3 +142,47 @@ config:
 autoRunMigrations: "true"
 
 toolsConfig: "{\"token-replacer\":{\"data-sources\":[{\"name\":\"Mineral\",\"sourcePaths\":[\"/Mineral/Handbooks/tokenized-documents\"]}]}}"
+
+# Worker configuration
+worker:
+  # Enable or disable the worker deployment
+  enabled: false
+  # Number of worker replicas
+  replicaCount: 2
+  # Worker command
+  command:
+    - yarn
+    - run
+    - worker:document-generation
+  # Worker-specific environment variables
+  env:
+    redisUrl: "redis://redis:6379"
+    workerConcurrency: "2"
+  # Worker pod annotations
+  podAnnotations: {}
+  # Worker pod labels
+  podLabels: {}
+  # Worker pod security context
+  podSecurityContext: {}
+  # Worker container security context
+  securityContext: {}
+  # Worker resources
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  # Worker volume mounts
+  volumeMounts: []
+  # Worker volumes
+  volumes: []
+  # Worker node selector
+  nodeSelector: {}
+  # Worker tolerations
+  tolerations: []
+  # Worker affinity
+  affinity: {}
+  # Additional environment variables for worker
+  extraEnvVars: []
