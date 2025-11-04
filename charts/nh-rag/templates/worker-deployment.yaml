@@ -1,0 +1,167 @@
+{{- if .Values.worker.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nh-rag.fullname" . }}-worker
+  labels:
+    {{- include "nh-rag.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "nh-rag.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      {{- with .Values.worker.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "nh-rag.labels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+        {{- with .Values.worker.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "nh-rag.serviceAccountName" . }}
+      {{- with .Values.worker.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: worker
+          {{- with .Values.worker.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
+          {{- with .Values.worker.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.worker.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.worker.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.worker.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: LLAMAINDEX_MODEL_NAME
+              value: {{ .Values.env.LLAMAINDEX_MODEL_NAME | quote}}
+            - name: QDRANT_COLLECTION
+              value: {{ .Values.env.QDRANT_COLLECTION | quote}}
+            - name: EMBEDDINGS_MODEL
+              value: {{ .Values.env.EMBEDDINGS_MODEL | quote}}
+            - name: CHUNK_SIZE
+              value: {{ .Values.env.CHUNK_SIZE | quote}}
+            - name: CHUNK_OVERLAP
+              value: {{ .Values.env.CHUNK_OVERLAP | quote}}
+            - name: BATCH_SIZE
+              value: {{ .Values.env.BATCH_SIZE | quote}}
+            - name: EMBEDDING_BATCH_SIZE
+              value: {{ .Values.env.EMBEDDING_BATCH_SIZE | quote}}
+            - name: REDIS_URL
+              value: {{ .Values.env.REDIS_URL | quote}}
+            - name: BEDROCK_MODEL_ID
+              value: {{ .Values.env.BEDROCK_MODEL_ID | quote}}
+            - name: AWS_OPENAI_API_BASE_URL
+              value: {{ .Values.env.AWS_OPENAI_API_BASE_URL | quote}}
+          {{ if .Values.env.LLAMAINDEX_OLLAMA_BASE_URL }}
+            - name: LLAMAINDEX_OLLAMA_BASE_URL
+              value: {{ .Values.env.LLAMAINDEX_OLLAMA_BASE_URL | quote}}
+          {{ end }}
+          {{ if .Values.env.GCS_BUCKET_NAME }}
+            - name: GCS_BUCKET_NAME
+              value: {{ .Values.env.GCS_BUCKET_NAME | quote}}
+          {{ end }}
+          {{ if .Values.env.QDRANT_URL }}
+            - name: QDRANT_URL
+              value: {{ .Values.env.QDRANT_URL | quote}}
+          {{ end }}
+          {{ if .Values.env.DATABASE_URL }}
+            - name: DATABASE_URL
+              value: {{ .Values.env.DATABASE_URL | quote}}
+          {{ end }}
+          {{ if .Values.global.googleApplicationCredentialsSecretRef }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.googleApplicationCredentialsSecretRef }}
+                  key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+          {{ end }}
+          {{ if .Values.global.awsOpenAIKeySecretRef }}
+            - name: AWS_OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.awsOpenAIKeySecretRef }}
+                  key: AWS_OPENAI_API_KEY
+          {{ end }}
+            - name: JUICEFS_S3_GATEWAY_ENDPOINT
+              value: {{ .Values.config.juiceFsUrl }}
+            - name: JUICEFS_S3_GATEWAY_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: minio-root-user
+            - name: JUICEFS_S3_GATEWAY_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: minio-root-password
+            - name: JUICEFS_S3_GATEWAY_VOLUME_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: name
+            - name: JUICEFS_S3_GATEWAY_STORAGE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: storage
+            - name: JUICEFS_S3_GATEWAY_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.juiceFsSecretName }}
+                  key: bucket
+            {{- if .Values.worker.extraEnvVars }}
+              {{- toYaml .Values.worker.extraEnvVars | nindent 12 }}
+            {{- end }}
+          envFrom:
+          {{- if .Values.global.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ .Values.global.extraEnvVarsCM }}
+          {{- end }}
+          {{- if .Values.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ .Values.global.extraEnvVarsSecret }}
+          {{- end }}
+      {{- with .Values.worker.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.worker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.worker.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.worker.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

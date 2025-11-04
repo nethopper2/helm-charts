@@ -18,7 +18,7 @@ image:
   repository: nethopper/nh-rag-api
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.0.1"
+  tag: ""
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -145,6 +145,11 @@ tolerations: []
 
 affinity: {}
 
+# Configuration
+config:
+  juiceFsSecretName: ""
+  juiceFsUrl: ""
+
 # This is for configuring Prometheus metrics collection
 metrics:
   enabled: false
@@ -162,3 +167,51 @@ metrics:
     selector: {}
     metricRelabelings: []
     relabelings: []
+
+# Worker configuration
+worker:
+  # Enable or disable the worker deployment
+  enabled: false
+  # Worker image configuration
+  image:
+    # Repository for the worker image
+    repository: nethopper/nh-rag-worker
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion
+    tag: ""
+  # Number of worker replicas
+  replicaCount: 2
+  # Worker command
+  command: []
+    # - python
+    # - worker.py
+  # Worker args
+  args: []
+  # Worker-specific environment variables
+  extraEnvVars: []
+  # Worker pod annotations
+  podAnnotations: {}
+  # Worker pod labels
+  podLabels: {}
+  # Worker pod security context
+  podSecurityContext: {}
+  # Worker container security context
+  securityContext: {}
+  # Worker resources
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  # Worker volume mounts
+  volumeMounts: []
+  # Worker volumes
+  volumes: []
+  # Worker node selector
+  nodeSelector: {}
+  # Worker tolerations
+  tolerations: []
+  # Worker affinity
+  affinity: {}
