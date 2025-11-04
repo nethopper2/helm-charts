@@ -42,6 +42,10 @@ spec:
           {{- end }}
           image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
           {{- with .Values.worker.command }}
           command:
             {{- toYaml . | nindent 12 }}
