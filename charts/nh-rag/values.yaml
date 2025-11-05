@@ -172,6 +172,12 @@ metrics:
 worker:
   # Enable or disable the worker deployment
   enabled: false
+  # Worker service configuration
+  service:
+    # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+    type: ClusterIP
+    # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+    port: 8000
   # Worker image configuration
   image:
     # Repository for the worker image
