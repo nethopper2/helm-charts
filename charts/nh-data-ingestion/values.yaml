@@ -1,0 +1,247 @@
+# Default values for nh-data-ingestion.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# NOTE: This chart is designed to be used as a dependency in private-ai-rag
+# Most configuration (database, Redis, JuiceFS, secrets) comes from the parent chart via:
+# - global.extraEnvVarsCM (shared-configmap-rag)
+# - global.extraEnvVarsSecret (shared-secrets-rag)
+# - juicefs-s3-gateway secret
+
+# Shared config options from parent chart
+global: {}
+  # extraEnvVarsCM: "shared-configmap-rag"  # Provided by parent
+  # extraEnvVarsSecret: "shared-secrets-rag"  # Provided by parent
+  # dataIngestionCredsRef: ""  # Secret containing data ingestion specific credentials (e.g., OAuth tokens, API keys)
+
+# Image pull secrets
+imagePullSecrets: []
+
+# Chart name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Service account configuration
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Minimal config - most values come from parent chart's shared secrets/configmaps
+config:
+  # Redis URL - defaults to parent chart's redis service
+  # Override if using external Redis (e.g., redis://external-redis:6379)
+  redisUrl: "redis://private-ai-rag-redis-master:6379"
+  
+  # JuiceFS secret name - should match parent chart
+  juiceFsSecretName: "juicefs-s3-gateway"
+  
+  #TODO: add support for db selection based on postgresDatabase config value
+  # Database name for this service
+  postgresDatabase: "postgres"
+
+# ============================================================================
+# API Component Configuration
+# ============================================================================
+api:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: nethopper/nh-data-ingestion-api
+    pullPolicy: IfNotPresent
+    tag: ""  # Defaults to chart appVersion
+  
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+  
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+  
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+  
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 250m
+    #   memory: 256Mi
+  
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+  
+  extraEnvVars: []
+  volumes: []
+  volumeMounts: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ============================================================================
+# Worker Component (Celery Workers)
+# ============================================================================
+worker:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: nethopper/nh-data-ingestion-worker
+    pullPolicy: IfNotPresent
+    tag: ""
+  
+  celery:
+    concurrency: "4"
+    loglevel: "info"
+  
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+  
+  resources: {}
+    # limits:
+    #   cpu: 1000m
+    #   memory: 1Gi
+    # requests:
+    #   cpu: 500m
+    #   memory: 512Mi
+  
+  livenessProbe: {}
+  readinessProbe: {}
+  
+  extraEnvVars: []
+  volumeMounts: []
+  volumes: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ============================================================================
+# Scheduler Component (Celery Beat)
+# ============================================================================
+scheduler:
+  enabled: true
+  replicaCount: 1  # Only one scheduler should run
+  
+  image:
+    repository: nethopper/nh-data-ingestion-scheduler
+    pullPolicy: IfNotPresent
+    tag: ""
+  
+  celery:
+    loglevel: "info"
+  
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+  
+  resources: {}
+    # limits:
+    #   cpu: 250m
+    #   memory: 256Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  
+  livenessProbe: {}
+  readinessProbe: {}
+  
+  extraEnvVars: []
+  volumeMounts: []
+  volumes: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ============================================================================
+# Flower Component (Celery Monitoring) - Optional
+# ============================================================================
+flower:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: nethopper/nh-data-ingestion-flower
+    pullPolicy: IfNotPresent
+    tag: ""
+  
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+  
+  service:
+    type: ClusterIP
+    port: 5555
+    targetPort: 5555
+  
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: flower.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+  
+  resources: {}
+  
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  
+  extraEnvVars: []
+  volumeMounts: []
+  volumes: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

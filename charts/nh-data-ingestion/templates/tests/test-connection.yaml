@@ -1,0 +1,17 @@
+{{- if .Values.api.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "nh-data-ingestion.fullname" . }}-test-connection"
+  labels:
+    {{- include "nh-data-ingestion.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "nh-data-ingestion.api.fullname" . }}:{{ .Values.api.service.port }}/health']
+  restartPolicy: Never
+{{- end }}
