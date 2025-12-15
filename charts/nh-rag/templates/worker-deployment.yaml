@@ -114,13 +114,6 @@ spec:
                   name: {{ .Values.global.googleApplicationCredentialsSecretRef }}
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
           {{ end }}
-          {{ if .Values.global.awsOpenAIKeySecretRef }}
-            - name: AWS_OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.awsOpenAIKeySecretRef }}
-                  key: AWS_OPENAI_API_KEY
-          {{ end }}
             - name: JUICEFS_S3_GATEWAY_ENDPOINT
               value: {{ .Values.config.juiceFsUrl }}
             - name: JUICEFS_S3_GATEWAY_ACCESS_KEY
@@ -152,6 +145,10 @@ spec:
               {{- toYaml .Values.worker.extraEnvVars | nindent 12 }}
             {{- end }}
           envFrom:
+          {{- if .Values.global.awsOpenAIKeySecretRef }}
+            - secretRef:
+                name: {{ .Values.global.awsOpenAIKeySecretRef }}
+          {{- end }}
           {{- if .Values.global.extraEnvVarsCM }}
             - configMapRef:
                 name: {{ .Values.global.extraEnvVarsCM }}
