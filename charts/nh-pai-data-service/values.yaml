@@ -153,6 +153,8 @@ config:
     recipients: ""
     # Email address to send from (optional, defaults to first recipient)
     from: ""
+    # Customer name to display in feedback emails (appears in subject and header)
+    customerName: ""
 
 # This is for setting up the auto run migrations
 autoRunMigrations: "true"

@@ -115,6 +115,10 @@ spec:
             - name: FEEDBACK_EMAIL_FROM
               value: {{ .Values.config.feedbackEmail.from | quote }}
             {{- end }}
+            {{- if .Values.config.feedbackEmail.customerName }}
+            - name: FEEDBACK_CUSTOMER_NAME
+              value: {{ .Values.config.feedbackEmail.customerName | quote }}
+            {{- end }}
             {{- if .Values.extraEnvVars }}
               {{- toYaml .Values.extraEnvVars | nindent 12 }}
             {{- end }}
