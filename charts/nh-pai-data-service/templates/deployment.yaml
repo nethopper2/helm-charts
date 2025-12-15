@@ -98,6 +98,23 @@ spec:
                   key: bucket
             - name: TOOLS_CONFIG
               value: {{ .Values.toolsConfig | quote }}
+            {{- if .Values.global.sendgridSecretRef }}
+            - name: SENDGRID_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.sendgridSecretRef }}
+                  key: SENDGRID_API_KEY
+            {{- end }}
+            - name: FEEDBACK_EMAIL_ENABLED
+              value: {{ .Values.config.feedbackEmail.enabled | default "true" | quote }}
+            {{- if .Values.config.feedbackEmail.recipients }}
+            - name: FEEDBACK_EMAIL_RECIPIENTS
+              value: {{ .Values.config.feedbackEmail.recipients | quote }}
+            {{- end }}
+            {{- if .Values.config.feedbackEmail.from }}
+            - name: FEEDBACK_EMAIL_FROM
+              value: {{ .Values.config.feedbackEmail.from | quote }}
+            {{- end }}
             {{- if .Values.extraEnvVars }}
               {{- toYaml .Values.extraEnvVars | nindent 12 }}
             {{- end }}

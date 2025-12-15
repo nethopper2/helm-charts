@@ -2,6 +2,13 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Global configuration
+global:
+  # Reference to secret containing SENDGRID_API_KEY
+  sendgridSecretRef: ""
+  extraEnvVarsCM: ""
+  extraEnvVarsSecret: ""
+
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
 
@@ -138,6 +145,14 @@ config:
   postgresDatabase: ""
   juiceFsSecretName: ""
   juiceFsUrl: ""
+  # Feedback email configuration
+  feedbackEmail:
+    # Enable/disable email alerts (set to 'false' to disable)
+    enabled: "true"
+    # Comma-separated list of email addresses to receive feedback alerts
+    recipients: ""
+    # Email address to send from (optional, defaults to first recipient)
+    from: ""
 
 # This is for setting up the auto run migrations
 autoRunMigrations: "true"
