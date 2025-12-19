@@ -61,8 +61,6 @@ spec:
           {{- end }}
           env:
             {{- include "nh-data-ingestion.commonEnv" . | nindent 12 }}
-            - name: REDIS_URL
-              value: {{ .Values.config.redisUrl | quote }}
             {{- if .Values.flower.extraEnvVars }}
             {{- toYaml .Values.flower.extraEnvVars | nindent 12 }}
             {{- end }}
