@@ -346,6 +346,124 @@ spec:
           resources:
             {{- toYaml .Values.sidecar.resources | nindent 12 }}
         {{- end }}
+        {{- if .Values.fuse.enabled }}
+        - name: fuse-mount
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          {{- if .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.fuse.securityContext | nindent 12 }}
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Starting JuiceFS FUSE mount..."
+              
+              # Create mount point directory
+              mkdir -p {{ .Values.fuse.mountPath }}
+              
+              # Mount JuiceFS filesystem with FUSE
+              {{- if .Values.secret.config.token }}
+              exec juicefs mount ${name} {{ .Values.fuse.mountPath }} ${mount_options}
+              {{- else }}
+              exec juicefs mount ${metaurl} {{ .Values.fuse.mountPath }} --metrics=0.0.0.0:9568 ${mount_options}
+              {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ include "juicefs-s3-gateway.secretName" . }}
+            {{- if .Values.configMap.create }}
+            - configMapRef:
+                name: {{ include "juicefs-s3-gateway.configMapName" . }}
+            {{- end }}
+          env:
+            - name: name
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: name
+            {{- if .Values.configMap.create }}
+            - name: mount_options
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "juicefs-s3-gateway.configMapName" . }}
+                  key: mount-options
+            {{- end }}
+            {{- if .Values.secret.config.token }}
+            - name: token
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: token
+            {{- else }}
+            - name: metaurl
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: metaurl
+            {{- end }}
+            {{- if .Values.secret.config.rsaPassphrase }}
+            - name: JFS_RSA_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "juicefs-s3-gateway.secretName" . }}
+                  key: rsa-passphrase
+            {{- end }}
+            {{- if eq .Values.secret.config.storage "gs" }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secrets/google/key.json
+            {{- end }}
+            {{- if contains "postgres" .Values.secret.config.metaurl }}
+            - name: META_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.postgresql.auth.existingSecret }}
+                  key: {{ .Values.global.postgresql.auth.secretKeys.adminPasswordKey }}
+            {{- end }}
+          ports:
+            - name: fuse-metrics
+              containerPort: 9568
+              protocol: TCP
+          {{- with .Values.fuse.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.fuse.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.fuse.resources | nindent 12 }}
+          volumeMounts:
+            - name: fuse-mount-point
+              mountPath: {{ .Values.fuse.mountPath }}
+              mountPropagation: Bidirectional
+            - name: fuse-cache
+              mountPath: /cache
+            {{- if .Values.secret.config.token }}
+            - mountPath: /root/.juicefs
+              name: jfs-root-dir
+            {{- end }}
+            {{- if .Values.secret.config.rsaKey }}
+            - name: rsa-key
+              mountPath: "/root"
+              readOnly: true
+            {{- end }}
+            {{- if and (eq .Values.secret.config.storage "gs") .Values.secret.config.credentialsSecret }}
+            - name: object-storage-credentials
+              mountPath: /var/secrets/google
+              readOnly: true
+            {{- end }}
+            {{- if and (eq .Values.secret.config.storage "s3") .Values.secret.config.credentialsSecret }}
+            - name: object-storage-credentials
+              mountPath: /root/.aws
+              readOnly: true
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -385,6 +503,15 @@ spec:
             items:
               - key: rsa-key
                 path: rsa-key.pem
+        {{- end }}
+        {{- if .Values.fuse.enabled }}
+        - name: fuse-mount-point
+          emptyDir: {}
+        - name: fuse-cache
+          emptyDir:
+            {{- if .Values.fuse.cache.emptyDirSize }}
+            sizeLimit: {{ .Values.fuse.cache.emptyDirSize }}
+            {{- end }}
         {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

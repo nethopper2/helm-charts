@@ -279,3 +279,73 @@ sidecar:
   #   - mc --config-dir /tmp/.mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete --ignore-existing
   mcCommands:
     - mc --config-dir /tmp/.mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete --ignore-existing
+
+# -- JuiceFS FUSE Mount Configuration
+# Enables FUSE mount alongside the S3 gateway for extended attributes (xattr) support
+# This runs a sidecar container with `juicefs mount` that provides POSIX filesystem access
+# WARNING: FUSE mount requires privileged mode which has security implications
+# Ref: https://juicefs.com/docs/community/command_reference#mount
+fuse:
+  # -- Enable FUSE mount sidecar container
+  enabled: false
+  
+  # -- Mount path for the FUSE filesystem inside the container
+  mountPath: "/jfs"
+  
+  # -- JuiceFS mount options (space-separated)
+  # Key flags for extended attributes:
+  #   --enable-xattr    Enable extended attributes (REQUIRED for xattr support)
+  #   --enable-cap      Enable security.capability xattr
+  #   --enable-selinux  Enable security.selinux xattr
+  # Cache options:
+  #   --cache-size=N    Cache size in MiB (default: 102400 = 100GB)
+  #   --cache-dir=PATH  Cache directory path (default: /var/jfsCache)
+  # Ref: https://juicefs.com/docs/community/command_reference#mount
+  options: "--enable-xattr --cache-size=1024 --cache-dir=/cache"
+  
+  # -- Resource limits and requests for FUSE sidecar container
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  # -- Cache configuration for FUSE mount (uses emptyDir)
+  cache:
+    # -- Size limit for emptyDir cache
+    # Leave empty for no limit (uses node's available space)
+    emptyDirSize: "1Gi"
+  
+  # -- Security context for FUSE container
+  # WARNING: Privileged mode is REQUIRED for FUSE mount operations
+  # This gives the container full access to host devices including /dev/fuse
+  # Ref: https://juicefs.com/docs/community/how_to_use_on_kubernetes/#mount-juicefs-in-the-container
+  securityContext:
+    privileged: true
+  
+  # -- Liveness probe for FUSE mount
+  # Checks if the mount point is accessible
+  livenessProbe:
+    exec:
+      command:
+        - sh
+        - -c
+        - "ls /jfs > /dev/null 2>&1"
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  
+  # -- Readiness probe for FUSE mount
+  readinessProbe:
+    exec:
+      command:
+        - sh
+        - -c
+        - "ls /jfs > /dev/null 2>&1"
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
