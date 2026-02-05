@@ -114,6 +114,10 @@ spec:
                   name: {{ .Values.global.googleApplicationCredentialsSecretRef }}
                   key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
           {{ end }}
+            - name: LOG_LLM_DEBUG
+              value: {{ .Values.config.logLlmDebug | quote }}
+            - name: ENABLE_DEV_MODEL_OVERRIDES
+              value: {{ .Values.config.enableDevModelOverrides | quote }}
             - name: JUICEFS_S3_GATEWAY_ENDPOINT
               value: {{ .Values.config.juiceFsUrl }}
             - name: JUICEFS_S3_GATEWAY_ACCESS_KEY

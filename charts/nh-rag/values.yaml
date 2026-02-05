@@ -149,6 +149,8 @@ affinity: {}
 config:
   juiceFsSecretName: ""
   juiceFsUrl: ""
+  logLlmDebug: false
+  enableDevModelOverrides: false
 
 # This is for configuring Prometheus metrics collection
 metrics:
