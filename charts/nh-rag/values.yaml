@@ -121,6 +121,7 @@ env:
   CHUNK_OVERLAP: 200
   BATCH_SIZE: 10
   EMBEDDING_BATCH_SIZE: 50
+  # BEDROCK_MODEL_PROVIDER: ""
   # LLAMAINDEX_OLLAMA_BASE_URL: "http://localhost:11434"
   # GCS_BUCKET_NAME: "bowen-brain"
   # QDRANT_URL: "http://localhost:6333"
