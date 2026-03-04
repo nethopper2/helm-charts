@@ -54,13 +54,13 @@ spec:
           args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.worker.livenessProbe }}
+          {{- if .Values.worker.livenessProbe.enabled }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml (omit .Values.worker.livenessProbe "enabled") | nindent 12 }}
           {{- end }}
-          {{- with .Values.worker.readinessProbe }}
+          {{- if .Values.worker.readinessProbe.enabled }}
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml (omit .Values.worker.readinessProbe "enabled") | nindent 12 }}
           {{- end }}
           {{- with .Values.worker.resources }}
           resources:

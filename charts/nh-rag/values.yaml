@@ -95,10 +95,12 @@ resources: {}
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
+  enabled: true
   httpGet:
     path: /health
     port: http
 readinessProbe:
+  enabled: true
   httpGet:
     path: /health
     port: http
@@ -198,6 +200,7 @@ worker:
   args: []
   # Worker liveness probe configuration
   livenessProbe:
+    enabled: true
     # httpGet:
     #   path: /health
     #   port: http
@@ -208,6 +211,7 @@ worker:
       port: http
   # Worker readiness probe configuration
   readinessProbe:
+    enabled: true
     # httpGet:
     #   path: /health
     #   port: http
