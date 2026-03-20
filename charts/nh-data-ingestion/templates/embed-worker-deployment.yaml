@@ -1,0 +1,94 @@
+{{- if .Values.embedWorker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nh-data-ingestion.embedWorker.fullname" . }}
+  labels:
+    {{- include "nh-data-ingestion.embedWorker.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.embedWorker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "nh-data-ingestion.embedWorker.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.embedWorker.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "nh-data-ingestion.embedWorker.labels" . | nindent 8 }}
+        {{- with .Values.embedWorker.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "nh-data-ingestion.serviceAccountName" . }}
+      {{- with .Values.embedWorker.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: embed-worker
+          {{- with .Values.embedWorker.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.embedWorker.image.repository }}:{{ .Values.embedWorker.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.embedWorker.image.pullPolicy }}
+          command:
+            - celery
+            - -A
+            - app.celery_config.celery_app
+            - worker
+            - --queues={{ .Values.embedWorker.celery.queues }}
+            - --concurrency={{ .Values.embedWorker.celery.concurrency }}
+            - --loglevel={{ .Values.embedWorker.celery.loglevel }}
+            - --hostname=embedding-worker@%h
+          {{- with .Values.embedWorker.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.embedWorker.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.embedWorker.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.embedWorker.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            {{- include "nh-data-ingestion.commonEnv" . | nindent 12 }}
+            - name: CELERY_CONCURRENCY
+              value: {{ .Values.embedWorker.celery.concurrency | quote }}
+            - name: CELERY_LOGLEVEL
+              value: {{ .Values.embedWorker.celery.loglevel | quote }}
+            {{- if .Values.embedWorker.extraEnvVars }}
+            {{- toYaml .Values.embedWorker.extraEnvVars | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- include "nh-data-ingestion.commonEnvFrom" . | nindent 12 }}
+      {{- with .Values.embedWorker.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.embedWorker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.embedWorker.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.embedWorker.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -153,6 +153,46 @@ worker:
   affinity: {}
 
 # ============================================================================
+# Embed Worker Component (Celery Embedding Workers)
+# ============================================================================
+embedWorker:
+  enabled: true
+  replicaCount: 6
+  
+  image:
+    repository: nethopper/nh-data-ingestion-worker
+    pullPolicy: IfNotPresent
+    tag: ""
+  
+  celery:
+    concurrency: "2"
+    loglevel: "info"
+    queues: "embedding_queue"
+  
+  podAnnotations: {}
+  podLabels: {}
+  podSecurityContext: {}
+  securityContext: {}
+  
+  resources: {}
+    # limits:
+    #   cpu: 1000m
+    #   memory: 1Gi
+    # requests:
+    #   cpu: 500m
+    #   memory: 512Mi
+  
+  livenessProbe: {}
+  readinessProbe: {}
+  
+  extraEnvVars: []
+  volumeMounts: []
+  volumes: []
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ============================================================================
 # Scheduler Component (Celery Beat)
 # ============================================================================
 scheduler:

@@ -154,6 +154,29 @@ app.kubernetes.io/component: flower
 {{- end }}
 
 {{/*
+Embed Worker component name
+*/}}
+{{- define "nh-data-ingestion.embedWorker.fullname" -}}
+{{- printf "%s-embed-worker" (include "nh-data-ingestion.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Embed Worker labels
+*/}}
+{{- define "nh-data-ingestion.embedWorker.labels" -}}
+{{ include "nh-data-ingestion.labels" . }}
+app.kubernetes.io/component: embed-worker
+{{- end }}
+
+{{/*
+Embed Worker selector labels
+*/}}
+{{- define "nh-data-ingestion.embedWorker.selectorLabels" -}}
+{{ include "nh-data-ingestion.selectorLabels" . }}
+app.kubernetes.io/component: embed-worker
+{{- end }}
+
+{{/*
 Common environment variables for all components
 Uses shared secrets from parent chart (private-ai-rag):
 - shared-secrets-rag: Contains DATABASE_URL, JWT_SECRET_KEY
