@@ -16,7 +16,9 @@ metadata:
 data:
   format-options: {{ .Values.configMap.formatOptions | quote }}
   gateway-options: {{ .Values.configMap.options | quote }}
+  {{- if .Values.configMap.webhookEndpoint }}
   webhook-endpoint: {{ .Values.configMap.webhookEndpoint }}
+  {{- end }}
   {{- if .Values.fuse.enabled }}
   mount-options: {{ .Values.fuse.options | quote }}
   {{- end }}

@@ -216,6 +216,9 @@ configMap:
   # CE Ref: https://juicefs.com/docs/community/command_reference#gateway
   # EE Ref: https://juicefs.com/docs/cloud/reference/command_reference/#gateway
   options: "--get-timeout=60 --put-timeout=60 --keep-etag --object-meta --refresh-iam-interval=30s"
+  # -- Webhook endpoint for MinIO bucket notifications.
+  # If empty, the chart will not enable webhook notifications.
+  webhookEndpoint: ""
 
 # -- Metrics configuration
 metrics:
