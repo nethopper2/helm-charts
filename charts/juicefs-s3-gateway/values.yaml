@@ -277,11 +277,7 @@ sidecar:
   # - ACCESS_KEY: From MINIO_ROOT_USER secret
   # - SECRET_KEY: From MINIO_ROOT_PASSWORD secret
   # - BUCKET_NAME: The bucket name
-  # Example commands for webhook event notifications:
-  # mcCommands:
-  #   - mc --config-dir /tmp/.mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete --ignore-existing
-  mcCommands:
-    - mc --config-dir /tmp/.mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete --ignore-existing
+  mcCommands: []
 
 # -- JuiceFS FUSE Mount Configuration
 # Enables FUSE mount alongside the S3 gateway for extended attributes (xattr) support

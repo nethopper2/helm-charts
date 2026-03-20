@@ -332,12 +332,15 @@ spec:
 
               echo "Starting JuiceFS S3 Gateway configuration..."
               {{- range .Values.sidecar.mcCommands }}
-              {{- if or $.Values.configMap.webhookEndpoint (not (contains "arn:minio:sqs::1:webhook" .)) }}
               echo "Executing: {{ . }}"
               {{ . }}
-              {{- else }}
-              echo "Skipping webhook mc command (configMap.webhookEndpoint not set): {{ . }}"
               {{- end }}
+              {{- if .Values.configMap.webhookEndpoint }}
+              echo "Adding MinIO webhook notification (webhookEndpoint set)..."
+              mc --config-dir /tmp/.mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete --ignore-existing
+              {{- else }}
+              echo "Removing MinIO webhook notification (webhookEndpoint not set)..."
+              mc --config-dir /tmp/.mc event rm jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --force || true
               {{- end }}
               echo "Configuration completed successfully!"
 
