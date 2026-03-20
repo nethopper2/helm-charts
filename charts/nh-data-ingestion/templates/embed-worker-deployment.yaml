@@ -70,6 +70,30 @@ spec:
               value: {{ .Values.embedWorker.celery.concurrency | quote }}
             - name: CELERY_LOGLEVEL
               value: {{ .Values.embedWorker.celery.loglevel | quote }}
+            - name: OPEN_WEBUI_URL
+              value: {{ .Values.embedWorker.env.OPEN_WEBUI_URL | quote }}
+            - name: QDRANT_URL
+              value: {{ .Values.embedWorker.env.QDRANT_URL | quote }}
+            - name: QDRANT_COLLECTION
+              value: {{ .Values.embedWorker.env.QDRANT_COLLECTION | quote }}
+            - name: QDRANT_TIMEOUT
+              value: {{ .Values.embedWorker.env.QDRANT_TIMEOUT | quote }}
+            - name: EMBEDDINGS_MODEL
+              value: {{ .Values.embedWorker.env.EMBEDDINGS_MODEL | quote }}
+            - name: LLAMAINDEX_OLLAMA_BASE_URL
+              value: {{ .Values.embedWorker.env.LLAMAINDEX_OLLAMA_BASE_URL | quote }}
+            - name: CHUNK_SIZE
+              value: {{ .Values.embedWorker.env.CHUNK_SIZE | quote }}
+            - name: CHUNK_OVERLAP
+              value: {{ .Values.embedWorker.env.CHUNK_OVERLAP | quote }}
+            - name: EMBEDDING_BATCH_SIZE
+              value: {{ .Values.embedWorker.env.EMBEDDING_BATCH_SIZE | quote }}
+            - name: EMBEDDING_MAX_WORKERS
+              value: {{ .Values.embedWorker.env.EMBEDDING_MAX_WORKERS | quote }}
+            - name: EMBEDDING_THROTTLE_RATE
+              value: {{ .Values.embedWorker.env.EMBEDDING_THROTTLE_RATE | quote }}
+            - name: EMBEDDING_LARGE_FILE_THRESHOLD_MB
+              value: {{ .Values.embedWorker.env.EMBEDDING_LARGE_FILE_THRESHOLD_MB | quote }}
             {{- if .Values.embedWorker.extraEnvVars }}
             {{- toYaml .Values.embedWorker.extraEnvVars | nindent 12 }}
             {{- end }}

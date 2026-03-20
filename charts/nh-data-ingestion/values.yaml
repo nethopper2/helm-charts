@@ -169,6 +169,21 @@ embedWorker:
     loglevel: "info"
     queues: "embedding_queue"
   
+  # Embedding-specific environment variables
+  env:
+    OPEN_WEBUI_URL: ""
+    QDRANT_URL: ""
+    LLAMAINDEX_OLLAMA_BASE_URL: ""
+    QDRANT_COLLECTION: "docs"
+    QDRANT_TIMEOUT: "100"
+    EMBEDDINGS_MODEL: "nomic-embed-text-v1.5"
+    CHUNK_SIZE: "1000"
+    CHUNK_OVERLAP: "200"
+    EMBEDDING_BATCH_SIZE: "100"
+    EMBEDDING_MAX_WORKERS: "4"
+    EMBEDDING_THROTTLE_RATE: "20"
+    EMBEDDING_LARGE_FILE_THRESHOLD_MB: "10"
+  
   podAnnotations: {}
   podLabels: {}
   podSecurityContext: {}
