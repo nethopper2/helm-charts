@@ -191,7 +191,6 @@ spec:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
                   key: metaurl
             {{- end }}
-            {{- if .Values.configMap.webhookEndpoint }}
             - name: MINIO_NOTIFY_WEBHOOK_ENABLE_1
               value: "on"
             - name: MINIO_NOTIFY_WEBHOOK_ENDPOINT_1
@@ -202,7 +201,6 @@ spec:
             {{- if .Values.persistence.enabled }}
             - name: MINIO_NOTIFY_WEBHOOK_QUEUE_DIR_1
               value: "/messages"
-            {{- end }}
             {{- end }}
             - name: MINIO_ROOT_USER
               valueFrom:
@@ -332,12 +330,8 @@ spec:
 
               echo "Starting JuiceFS S3 Gateway configuration..."
               {{- range .Values.sidecar.mcCommands }}
-              {{- if or $.Values.configMap.webhookEndpoint (not (contains "arn:minio:sqs::1:webhook" .)) }}
               echo "Executing: {{ . }}"
               {{ . }}
-              {{- else }}
-              echo "Skipping webhook mc command (configMap.webhookEndpoint not set): {{ . }}"
-              {{- end }}
               {{- end }}
               echo "Configuration completed successfully!"
 
