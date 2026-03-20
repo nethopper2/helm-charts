@@ -339,6 +339,13 @@ spec:
               echo "Skipping webhook mc command (configMap.webhookEndpoint not set): {{ . }}"
               {{- end }}
               {{- end }}
+              {{- if .Values.configMap.webhookEndpoint }}
+              echo "Adding MinIO webhook notification (webhookEndpoint set)..."
+              mc --config-dir /tmp/.mc event add jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --event put,delete --ignore-existing
+              {{- else }}
+              echo "Removing MinIO webhook notification (webhookEndpoint not set)..."
+              mc --config-dir /tmp/.mc event rm jfs/${BUCKET_NAME} arn:minio:sqs::1:webhook --force || true
+              {{- end }}
               echo "Configuration completed successfully!"
 
               # Keep container running if configured (useful for debugging)
