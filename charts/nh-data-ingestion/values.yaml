@@ -106,6 +106,10 @@ api:
     maxReplicas: 10
     targetCPUUtilizationPercentage: 80
   
+  # API-specific environment variables
+  env:
+    LLAMAINDEX_OLLAMA_BASE_URL: ""
+  
   extraEnvVars: []
   volumes: []
   volumeMounts: []
