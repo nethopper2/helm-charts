@@ -180,7 +180,7 @@ embedWorker:
     LLAMAINDEX_OLLAMA_BASE_URL: ""
     QDRANT_COLLECTION: "docs"
     QDRANT_TIMEOUT: "100"
-    EMBEDDINGS_MODEL: "nomic-embed-text-v1.5"
+    EMBEDDINGS_MODEL: "nomic-embed-text:v1.5"
     CHUNK_SIZE: "1000"
     CHUNK_OVERLAP: "200"
     EMBEDDING_BATCH_SIZE: "100"
