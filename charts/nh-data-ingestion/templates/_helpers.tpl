@@ -251,4 +251,8 @@ Common envFrom for all components
 - secretRef:
     name: {{ .Values.global.dataIngestionCredsRef }}
 {{- end }}
+{{- if .Values.global.awsOpenAIKeySecretRef }}
+- secretRef:
+    name: {{ .Values.global.awsOpenAIKeySecretRef }}
+{{- end }}
 {{- end }}

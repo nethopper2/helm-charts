@@ -13,6 +13,7 @@ global: {}
   # extraEnvVarsCM: "shared-configmap-rag"  # Provided by parent
   # extraEnvVarsSecret: "shared-secrets-rag"  # Provided by parent
   # dataIngestionCredsRef: ""  # Secret containing data ingestion specific credentials (e.g., OAuth tokens, API keys)
+  # awsOpenAIKeySecretRef: ""  # Secret containing AWS/OpenAI credentials (shared with nh-rag)
 
 # Image pull secrets
 imagePullSecrets: []
