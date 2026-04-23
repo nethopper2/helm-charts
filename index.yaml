@@ -709,6 +709,17 @@ entries:
   nh-data-ingestion:
   - apiVersion: v2
     appVersion: v1.107.0
+    created: "2026-04-23T09:57:12.849818933Z"
+    description: A Helm chart for nh-data-ingestion service - data ingestion from
+      various providers with Celery workers
+    digest: 9fbc94d84a2f69b19d69d276eb275ea6a48e47de546de089f62ec9a2442af5a5
+    name: nh-data-ingestion
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/nh-data-ingestion-2.0.5/nh-data-ingestion-2.0.5.tgz
+    version: 2.0.5
+  - apiVersion: v2
+    appVersion: v1.107.0
     created: "2026-04-22T10:00:27.770173925Z"
     description: A Helm chart for nh-data-ingestion service - data ingestion from
       various providers with Celery workers
@@ -1743,4 +1754,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-22T10:00:27.770513162Z"
+generated: "2026-04-23T09:57:12.850187031Z"
