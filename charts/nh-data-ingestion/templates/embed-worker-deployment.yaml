@@ -94,6 +94,10 @@ spec:
               value: {{ .Values.embedWorker.env.EMBEDDING_THROTTLE_RATE | quote }}
             - name: EMBEDDING_LARGE_FILE_THRESHOLD_MB
               value: {{ .Values.embedWorker.env.EMBEDDING_LARGE_FILE_THRESHOLD_MB | quote }}
+            - name: EMBEDDING_MAX_CONCURRENT_BATCHES
+              value: {{ .Values.embedWorker.env.EMBEDDING_MAX_CONCURRENT_BATCHES | quote }}
+            - name: EMBEDDING_REEMBED_BATCH_SIZE
+              value: {{ .Values.embedWorker.env.EMBEDDING_REEMBED_BATCH_SIZE | quote }}
             {{- if .Values.embedWorker.extraEnvVars }}
             {{- toYaml .Values.embedWorker.extraEnvVars | nindent 12 }}
             {{- end }}
