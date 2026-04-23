@@ -42,6 +42,12 @@ config:
   # Database name for this service
   postgresDatabase: "postgres"
 
+# Qdrant vector DB - shared by api and embedWorker
+qdrant:
+  url: ""
+  collection: "docs"
+  timeout: "100"
+
 # ============================================================================
 # API Component Configuration
 # ============================================================================
@@ -177,10 +183,7 @@ embedWorker:
   # Embedding-specific environment variables
   env:
     OPEN_WEBUI_URL: ""
-    QDRANT_URL: ""
     LLAMAINDEX_OLLAMA_BASE_URL: ""
-    QDRANT_COLLECTION: "docs"
-    QDRANT_TIMEOUT: "100"
     EMBEDDINGS_MODEL: "nomic-embed-text:v1.5"
     CHUNK_SIZE: "1000"
     CHUNK_OVERLAP: "200"

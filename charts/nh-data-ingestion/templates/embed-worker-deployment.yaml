@@ -73,11 +73,11 @@ spec:
             - name: OPEN_WEBUI_URL
               value: {{ .Values.embedWorker.env.OPEN_WEBUI_URL | quote }}
             - name: QDRANT_URL
-              value: {{ .Values.embedWorker.env.QDRANT_URL | quote }}
+              value: {{ .Values.qdrant.url | quote }}
             - name: QDRANT_COLLECTION
-              value: {{ .Values.embedWorker.env.QDRANT_COLLECTION | quote }}
+              value: {{ .Values.qdrant.collection | quote }}
             - name: QDRANT_TIMEOUT
-              value: {{ .Values.embedWorker.env.QDRANT_TIMEOUT | quote }}
+              value: {{ .Values.qdrant.timeout | quote }}
             - name: EMBEDDINGS_MODEL
               value: {{ .Values.embedWorker.env.EMBEDDINGS_MODEL | quote }}
             - name: LLAMAINDEX_OLLAMA_BASE_URL
