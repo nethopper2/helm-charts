@@ -48,6 +48,8 @@ spec:
             - --concurrency={{ .Values.embedWorker.celery.concurrency }}
             - --loglevel={{ .Values.embedWorker.celery.loglevel }}
             - --hostname=embedding-worker@%h
+            - --without-gossip
+            - --without-mingle
           {{- with .Values.embedWorker.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
