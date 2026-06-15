@@ -1,0 +1,11 @@
+secretName: "nh-ai-benchmark-secrets"
+
+env:
+  OI_BASE_URL: "http://open-webui.nh-addons.svc.cluster.local"
+  OPEN_WEBUI_UID: "9300adce-b460-4cba-9167-d53ab4bce06e"
+  RAG_BASE_URL: "http://ai-nh-dev-private-ai-rag-nh-rag-api.nh-addons.svc.cluster.local:8000"
+  PIPELINES_BASE_URL: "http://open-webui-pipelines.nh-addons.svc.cluster.local:9099"
+  MCP_BASE_URL: "http://ai-nh-dev-private-ai-rag-nh-mcp-server.nh-addons.svc.cluster.local:8010"
+  DEFAULT_MODEL: "private-ai-supervisor-agent"
+  QDRANT_URL: "http://ai-nh-dev-private-ai-rag-qdrant.nh-addons.svc.cluster.local:6333"
+  QDRANT_COLLECTION: "docs"
