@@ -17,3 +17,13 @@
 
 # Test values
 test-values.yaml
+
+# Per-environment secrets (contain real credentials)
+**/secret-dev.yaml
+**/secret-stg.yaml
+**/secret-prod.yaml
+
+# Per-environment values (contain cluster-specific config)
+**/values-dev.yaml
+**/values-stg.yaml
+**/values-prod.yaml
