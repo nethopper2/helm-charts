@@ -162,9 +162,13 @@ env:
   BEDROCK_EMBEDDINGS_MODEL: "amazon.titan-embed-text-v2:0"
   CLAUDE_MODEL_ID: "us.anthropic.claude-sonnet-4-6"
 
-# -- Name of the secret to mount via envFrom (apply secret.yaml before deploying).
-# All keys in the secret are injected as env vars.
-secretName: "nh-ai-benchmark-secrets"
+# -- List of Kubernetes secret names to mount via envFrom.
+# Each secret's keys are injected as env var names, values as env var values.
+# Apply all referenced secrets before deploying.
+envFromSecrets: []
+# envFromSecrets:
+#   - nh-ai-benchmark-secrets       # service-specific secrets (OI_API_KEY, etc.)
+#   - aws-open-ai-api-key-nethopper # shared AWS credentials (AWS_ACCESS_KEY_ID, etc.)
 
 # -- Additional environment variables for the API container (k8s env var objects).
 # Use for vars not covered above, e.g.:

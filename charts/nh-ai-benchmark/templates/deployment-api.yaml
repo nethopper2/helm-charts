@@ -86,10 +86,12 @@ spec:
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
             {{- end }}
-          {{- if .Values.secretName }}
+          {{- if .Values.envFromSecrets }}
           envFrom:
+            {{- range .Values.envFromSecrets }}
             - secretRef:
-                name: {{ .Values.secretName }}
+                name: {{ . }}
+            {{- end }}
           {{- end }}
       {{- with .Values.volumes }}
       volumes:
