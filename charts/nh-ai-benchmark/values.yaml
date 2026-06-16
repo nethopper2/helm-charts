@@ -147,16 +147,17 @@ affinity: {}
 
 # -- Environment variables for the API container.
 # Sensitive values (OI_API_KEY, OPEN_WEBUI_UID, AWS_*, QDRANT_API_KEY) should be
-# provided via extraEnvVars using secretKeyRef rather than set here in plain text.
+# provided via secretName (envFrom) rather than set here in plain text.
+# Required values are commented out — deployment will fail if not set, which is intentional.
 env:
-  OI_BASE_URL: ""
-  OPEN_WEBUI_UID: ""
-  RAG_BASE_URL: ""
-  PIPELINES_BASE_URL: ""
-  MCP_BASE_URL: ""
-  DEFAULT_MODEL: ""
-  QDRANT_URL: ""
-  QDRANT_COLLECTION: ""
+  # OI_BASE_URL: ""
+  # OPEN_WEBUI_UID: ""
+  # RAG_BASE_URL: ""
+  # PIPELINES_BASE_URL: ""
+  # MCP_BASE_URL: ""
+  # DEFAULT_MODEL: ""
+  # QDRANT_URL: ""
+  # QDRANT_COLLECTION: ""
   BEDROCK_REGION: "us-east-1"
   BEDROCK_EMBEDDINGS_MODEL: "amazon.titan-embed-text-v2:0"
   CLAUDE_MODEL_ID: "us.anthropic.claude-sonnet-4-6"

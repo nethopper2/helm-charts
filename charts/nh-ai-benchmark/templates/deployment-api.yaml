@@ -62,19 +62,19 @@ spec:
           {{- end }}
           env:
             - name: OI_BASE_URL
-              value: {{ .Values.env.OI_BASE_URL | quote }}
+              value: {{ required "env.OI_BASE_URL is required" .Values.env.OI_BASE_URL | quote }}
             - name: RAG_BASE_URL
-              value: {{ .Values.env.RAG_BASE_URL | quote }}
+              value: {{ required "env.RAG_BASE_URL is required" .Values.env.RAG_BASE_URL | quote }}
             - name: PIPELINES_BASE_URL
-              value: {{ .Values.env.PIPELINES_BASE_URL | quote }}
+              value: {{ required "env.PIPELINES_BASE_URL is required" .Values.env.PIPELINES_BASE_URL | quote }}
             - name: MCP_BASE_URL
-              value: {{ .Values.env.MCP_BASE_URL | quote }}
+              value: {{ required "env.MCP_BASE_URL is required" .Values.env.MCP_BASE_URL | quote }}
             - name: DEFAULT_MODEL
-              value: {{ .Values.env.DEFAULT_MODEL | quote }}
+              value: {{ required "env.DEFAULT_MODEL is required" .Values.env.DEFAULT_MODEL | quote }}
             - name: QDRANT_URL
-              value: {{ .Values.env.QDRANT_URL | quote }}
+              value: {{ required "env.QDRANT_URL is required" .Values.env.QDRANT_URL | quote }}
             - name: QDRANT_COLLECTION
-              value: {{ .Values.env.QDRANT_COLLECTION | quote }}
+              value: {{ required "env.QDRANT_COLLECTION is required" .Values.env.QDRANT_COLLECTION | quote }}
             - name: BEDROCK_REGION
               value: {{ .Values.env.BEDROCK_REGION | quote }}
             - name: BEDROCK_EMBEDDINGS_MODEL
