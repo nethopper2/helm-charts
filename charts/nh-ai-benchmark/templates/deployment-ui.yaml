@@ -30,6 +30,9 @@ spec:
             - name: http
               containerPort: {{ .Values.ui.service.targetPort }}
               protocol: TCP
+          env:
+            - name: BENCH_API_HOST
+              value: {{ .Values.ui.benchApiHost | quote }}
           {{- with .Values.ui.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

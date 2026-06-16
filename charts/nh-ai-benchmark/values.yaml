@@ -179,7 +179,7 @@ extraEnvVars: []
 
 # -- UI deployment (Astro/Vue frontend served via nginx)
 ui:
-  enabled: false
+  enabled: true
   replicaCount: 1
   image:
     repository: nethopper/nh-ai-benchmark-ui
@@ -212,5 +212,7 @@ ui:
       - path:
           type: PathPrefix
           value: /
+  # -- Hostname of the API service for nginx reverse proxy
+  benchApiHost: "nh-ai-benchmark"
   resources: {}
 
