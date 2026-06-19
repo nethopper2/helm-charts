@@ -126,14 +126,55 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-# Additional volumes on the output Deployment definition.
+# -- Persistent storage for the API container (default gp3 StorageClass, dynamically
+# provisioned by the EBS CSI driver). Sizes are configurable per-deployment — override
+# `size` in values-<env>.yaml. Mount paths match the app's fixed dirs in config.py
+# (BENCH_DIR = /app), so do not change them unless the app layout changes.
+#
+# NOTE: EBS volumes are ReadWriteOnce (single node). The API runs replicaCount: 1, so this
+# is fine. If you ever enable the HPA or scale the API > 1, multiple pods cannot share an
+# RWO EBS volume — you'd need a shared filesystem (e.g. the JuiceFS S3 gateway) instead.
+persistence:
+  # Run artifacts written to /app/results (results/<run_id>/). Persist across restarts.
+  results:
+    enabled: true
+    mountPath: /app/results
+    # -- PVC size — tune per deployment based on expected run-artifact volume.
+    # gp3 supports online expansion (allowVolumeExpansion: true), so this can be raised later.
+    size: 20Gi
+    accessMode: ReadWriteOnce
+    # -- StorageClass. "" = cluster default (gp3). "-" = disable dynamic provisioning.
+    storageClass: ""
+    # -- Use an existing PVC instead of creating one (set to a claim name to bind it).
+    existingClaim: ""
+    annotations: {}
+    # -- When true (default), adds the `helm.sh/resource-policy: keep` annotation so the PVC
+    # (and, with gp3 reclaimPolicy: Delete, its EBS volume + data) survives `helm uninstall`.
+    # Reinstalls with the same release name/namespace reattach the existing data automatically.
+    # Set false to have the PVC removed on uninstall (which destroys the EBS volume + data).
+    # Retained PVCs are not freed automatically — delete manually (kubectl delete pvc) when no
+    # longer needed, as they keep incurring cost. Merges with `annotations`; explicit wins.
+    retainOnUninstall: true
+  # Per-user editable prompt suites at /app/prompts/workspace (prompts/workspace/<user_id>/).
+  # prompts/official and prompts.json ship in the image and are left untouched.
+  workspace:
+    enabled: true
+    mountPath: /app/prompts/workspace
+    size: 5Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
+    existingClaim: ""
+    annotations: {}
+    retainOnUninstall: true
+
+# Additional volumes on the output Deployment definition (merged with persistence volumes above).
 volumes: []
 # - name: foo
 #   secret:
 #     secretName: mysecret
 #     optional: false
 
-# Additional volumeMounts on the output Deployment definition.
+# Additional volumeMounts on the output Deployment definition (merged with persistence mounts above).
 volumeMounts: []
 # - name: foo
 #   mountPath: "/etc/foo"
@@ -146,12 +187,11 @@ tolerations: []
 affinity: {}
 
 # -- Environment variables for the API container.
-# Sensitive values (OI_API_KEY, OPEN_WEBUI_UID, AWS_*, QDRANT_API_KEY) should be
+# Sensitive values (OI_API_KEY, AWS_*, QDRANT_API_KEY) should be
 # provided via secretName (envFrom) rather than set here in plain text.
 # Required values are commented out — deployment will fail if not set, which is intentional.
 env:
   # OI_BASE_URL: ""
-  # OPEN_WEBUI_UID: ""
   # RAG_BASE_URL: ""
   # PIPELINES_BASE_URL: ""
   # MCP_BASE_URL: ""

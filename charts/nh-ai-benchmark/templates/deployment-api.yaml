@@ -56,9 +56,19 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
+          {{- $persistenceMounts := false }}
+          {{- range $name, $cfg := .Values.persistence }}{{- if $cfg.enabled }}{{- $persistenceMounts = true }}{{- end }}{{- end }}
+          {{- if or .Values.volumeMounts $persistenceMounts }}
           volumeMounts:
+            {{- range $name, $cfg := .Values.persistence }}
+            {{- if $cfg.enabled }}
+            - name: {{ $name }}
+              mountPath: {{ $cfg.mountPath | quote }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- end }}
           env:
             - name: OI_BASE_URL
@@ -81,8 +91,7 @@ spec:
               value: {{ .Values.env.BEDROCK_EMBEDDINGS_MODEL | quote }}
             - name: CLAUDE_MODEL_ID
               value: {{ .Values.env.CLAUDE_MODEL_ID | quote }}
-            - name: OPEN_WEBUI_UID
-              value: {{ .Values.env.OPEN_WEBUI_UID | quote }}
+
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
             {{- end }}
@@ -93,9 +102,20 @@ spec:
                 name: {{ . }}
             {{- end }}
           {{- end }}
-      {{- with .Values.volumes }}
+      {{- $persistenceVolumes := false }}
+      {{- range $name, $cfg := .Values.persistence }}{{- if $cfg.enabled }}{{- $persistenceVolumes = true }}{{- end }}{{- end }}
+      {{- if or .Values.volumes $persistenceVolumes }}
       volumes:
+        {{- range $name, $cfg := .Values.persistence }}
+        {{- if $cfg.enabled }}
+        - name: {{ $name }}
+          persistentVolumeClaim:
+            claimName: {{ $cfg.existingClaim | default (printf "%s-%s" (include "nh-ai-benchmark.fullname" $) $name) }}
+        {{- end }}
+        {{- end }}
+        {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
