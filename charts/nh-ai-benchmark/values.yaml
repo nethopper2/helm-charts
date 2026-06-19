@@ -139,9 +139,11 @@ persistence:
   results:
     enabled: true
     mountPath: /app/results
-    # -- PVC size — tune per deployment based on expected run-artifact volume.
-    # gp3 supports online expansion (allowVolumeExpansion: true), so this can be raised later.
-    size: 20Gi
+    # -- PVC size (GiB). Default 1Gi, which is also the EBS minimum. gp3 supports online
+    # expansion (allowVolumeExpansion: true), so you can INCREASE this any time (edit + helm
+    # upgrade, no downtime). You CANNOT decrease it — shrinking requires a new PVC + data copy.
+    # So start small and grow as needed.
+    size: 1Gi
     accessMode: ReadWriteOnce
     # -- StorageClass. "" = cluster default (gp3). "-" = disable dynamic provisioning.
     storageClass: ""
@@ -160,7 +162,8 @@ persistence:
   workspace:
     enabled: true
     mountPath: /app/prompts/workspace
-    size: 5Gi
+    # -- PVC size (GiB). Can be increased any time (online expansion); cannot be decreased.
+    size: 1Gi
     accessMode: ReadWriteOnce
     storageClass: ""
     existingClaim: ""
