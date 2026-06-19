@@ -1,0 +1,32 @@
+{{- range $name, $cfg := .Values.persistence }}
+{{- if and $cfg.enabled (not $cfg.existingClaim) }}
+{{- $keep := dict }}
+{{- if $cfg.retainOnUninstall }}{{- $keep = dict "helm.sh/resource-policy" "keep" }}{{- end }}
+{{- /* explicit annotations take precedence over the retainOnUninstall toggle on collision */}}
+{{- $annotations := merge (dict) ($cfg.annotations | default dict) $keep }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "nh-ai-benchmark.fullname" $ }}-{{ $name }}
+  labels:
+    {{- include "nh-ai-benchmark.labels" $ | nindent 4 }}
+  {{- with $annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ $cfg.accessMode | default "ReadWriteOnce" | quote }}
+  resources:
+    requests:
+      storage: {{ required (printf "persistence.%s.size is required" $name) $cfg.size | quote }}
+  {{- if $cfg.storageClass }}
+  {{- if (eq "-" $cfg.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: {{ $cfg.storageClass | quote }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
