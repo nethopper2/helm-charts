@@ -7,7 +7,10 @@ metadata:
 spec:
   {{- with .Values.deploymentStrategy }}
   strategy:
-    {{- toYaml . | nindent 4 }}
+    type: {{ .type }}
+    {{- if eq .type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
   {{- end }}
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}

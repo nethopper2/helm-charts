@@ -9,7 +9,10 @@ metadata:
 spec:
   {{- with .Values.ui.deploymentStrategy }}
   strategy:
-    {{- toYaml . | nindent 4 }}
+    type: {{ .type }}
+    {{- if eq .type "Recreate" }}
+    rollingUpdate: null
+    {{- end }}
   {{- end }}
   replicas: {{ .Values.ui.replicaCount }}
   selector:
