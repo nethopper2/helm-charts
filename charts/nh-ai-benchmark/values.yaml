@@ -194,8 +194,8 @@ tolerations: []
 affinity: {}
 
 # -- Environment variables for the API container.
-# Sensitive values (OI_API_KEY, AWS_*, QDRANT_API_KEY) should be
-# provided via secretName (envFrom) rather than set here in plain text.
+# Sensitive values: never set here in plain text — pass them through a secret,
+# named via existingSecret or envFromSecrets below.
 # Required values are commented out — deployment will fail if not set, which is intentional.
 env:
   # OI_BASE_URL: ""
@@ -208,13 +208,27 @@ env:
   BEDROCK_REGION: "us-east-1"
   BEDROCK_EMBEDDINGS_MODEL: "amazon.titan-embed-text-v2:0"
   CLAUDE_MODEL_ID: "us.anthropic.claude-sonnet-4-6"
+  BENCH_MULTI_USER: true
+  # CUSTOMER_NAME: ""                 # deploy label shown in Slack (e.g. MP-HR)
+  # BENCH_UI_PUBLIC_URL: ""           # public bench URL used for "View run" links in Slack
+  # SLACK_NOTIFY_ACCOUNT_EMAILS: ""   # comma-separated batch-owner emails allowed to post to Slack
+
+# -- Name of the pre-created secret holding this chart's core secrets. Typically
+# the same secret also listed first in envFromSecrets, e.g. nh-ai-benchmark-secrets-<env>.
+# All keys below are required except SLACK_WEBHOOK_URL (a feature toggle) --
+# see nh-ai-benchmark.secretEnv in _helpers.tpl.
+#   OI_API_KEY                       - OpenWebUI admin key; bench API calls run as this user.
+#   SLACK_WEBHOOK_URL                - Slack incoming webhook. Unset = no Slack posts.
+#   BENCH_AUTOMATION_ENCRYPTION_KEY   - Fernet key encrypting per-user automation API keys;
+#                                       the only var that enables the scheduler.
+#   BENCH_AUTOMATION_RUN_SECRET       - Shared secret for the manual run-now curl (QA only).
+existingSecret: ""
 
 # -- List of Kubernetes secret names to mount via envFrom.
 # Each secret's keys are injected as env var names, values as env var values.
 # Apply all referenced secrets before deploying.
 envFromSecrets: []
 # envFromSecrets:
-#   - nh-ai-benchmark-secrets       # service-specific secrets (OI_API_KEY, etc.)
 #   - aws-open-ai-api-key-nethopper # shared AWS credentials (AWS_ACCESS_KEY_ID, etc.)
 
 # -- Additional environment variables for the API container (k8s env var objects).

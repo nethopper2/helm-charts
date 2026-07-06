@@ -60,3 +60,34 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Env entries sourced from .Values.existingSecret. Shared by deployment-api.yaml
+and job-validate-secret.yaml so the two can never drift apart. Renders nothing
+if .Values.existingSecret is unset.
+*/}}
+{{- define "nh-ai-benchmark.secretEnv" -}}
+{{- with .Values.existingSecret }}
+- name: OI_API_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ . }}
+      key: OI_API_KEY
+- name: SLACK_WEBHOOK_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ . }}
+      key: SLACK_WEBHOOK_URL
+      optional: true
+- name: BENCH_AUTOMATION_ENCRYPTION_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ . }}
+      key: BENCH_AUTOMATION_ENCRYPTION_KEY
+- name: BENCH_AUTOMATION_RUN_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ . }}
+      key: BENCH_AUTOMATION_RUN_SECRET
+{{- end }}
+{{- end }}
