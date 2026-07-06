@@ -98,6 +98,21 @@ spec:
               value: {{ .Values.env.BEDROCK_EMBEDDINGS_MODEL | quote }}
             - name: CLAUDE_MODEL_ID
               value: {{ .Values.env.CLAUDE_MODEL_ID | quote }}
+            - name: BENCH_MULTI_USER
+              value: {{ .Values.env.BENCH_MULTI_USER | quote }}
+            {{- with .Values.env.CUSTOMER_NAME }}
+            - name: CUSTOMER_NAME
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.env.BENCH_UI_PUBLIC_URL }}
+            - name: BENCH_UI_PUBLIC_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.env.SLACK_NOTIFY_ACCOUNT_EMAILS }}
+            - name: SLACK_NOTIFY_ACCOUNT_EMAILS
+              value: {{ . | quote }}
+            {{- end }}
+            {{- include "nh-ai-benchmark.secretEnv" . | nindent 12 }}
 
             {{- if .Values.extraEnvVars }}
             {{- toYaml .Values.extraEnvVars | nindent 12 }}
