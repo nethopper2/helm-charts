@@ -253,6 +253,8 @@ spec:
           volumeMounts:
             - name: minio-config
               mountPath: /nonexistent
+            - name: tmp
+              mountPath: /tmp
             {{- if .Values.persistence.enabled }}
             - name: messages
               mountPath: /messages
@@ -481,6 +483,8 @@ spec:
       {{- end }}
       volumes:
         - name: minio-config
+          emptyDir: {}
+        - name: tmp
           emptyDir: {}
         {{- if .Values.persistence.enabled }}
         - name: messages
