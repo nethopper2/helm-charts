@@ -85,6 +85,36 @@ resources:
     cpu: 1000m
     memory: 1Gi
 
+# -- Local block cache. One `juicefs-cache` emptyDir mounted at `dir` in the gateway and,
+# when enabled, the fuse sidecar. Both get identical flags from the cacheFlags helper.
+cache:
+  dir: /var/jfsCache
+  # -- Size of the juicefs-cache emptyDir, in GiB. Must be >= 1; there is no
+  # "0 = unlimited" and the chart refuses to render if you try it. JuiceFS is told to
+  # use 80% of this (--cache-size is derived automatically) and must never reach it:
+  # overrunning --cache-size just makes JuiceFS evict cache blocks, but overrunning
+  # the volume makes kubelet EVICT THE POD. For a large cache, set a large number.
+  emptyDirSizeGi: 20
+  # -- Min free space on the NODE disk, not this volume (an emptyDir is a bind mount
+  # from it). JuiceFS default 0.1 fills to 90%, which is kubelet's eviction threshold.
+  freeSpaceRatio: 0.2
+  # -- Evict blocks untouched this long. JuiceFS default "0s" never evicts, so steady
+  # state becomes the cap rather than the working set.
+  expire: 336h
+  # -- Gateway runs as UID 65534, fuse as root; the 0600 default would stop them
+  # reading each other's blocks in the shared directory.
+  mode: "0660"
+
+# -- Deployment update strategy. Leave unset and the chart picks Recreate whenever
+# persistence is enabled, because the messages PVC is ReadWriteOnce and RollingUpdate
+# deadlocks against it (see templates/deployment.yaml). Override only if you know the
+# PVC is RWX or persistence is off.
+# strategy:
+#   type: RollingUpdate
+#   rollingUpdate:
+#     maxUnavailable: 1
+#     maxSurge: 0
+
 # -- Persistence configuration for the messages directory
 persistence:
   # -- Enable persistence using PVC
@@ -197,15 +227,25 @@ secret:
     rsaKey: ""
 
 
-# -- ConfigMap configuration for non-sensitive data
+# -- DEPRECATED NAME. No ConfigMap is created any more - templates/configmap.yaml was
+# removed and these values are rendered straight into the pod template instead. The name
+# is kept only so the 12 env files in private-ai-releases keep working; rename to
+# something honest when you are willing to churn them.
+#
+# Why it went: a ConfigMap change does not alter the podTemplate, so nothing restarted
+# and the new options silently did not apply until an unrelated restart. There was also
+# no checksum/config annotation. Inlining means changing options now rolls the pods.
+#
+# STILL READ:  formatOptions, options, webhookEndpoint
+# DEAD:        create, name, annotations, labels  (and the configMapName helper)
 configMap:
-  # -- Whether to create a configmap
+  # -- DEAD: nothing reads this
   create: true
-  # -- Name of the configmap to use. If not specified, a name is generated using the fullname template
+  # -- DEAD: nothing reads this
   name: ""
-  # -- Annotations to add to the created configmap
+  # -- DEAD: nothing reads this
   annotations: {}
-  # -- Labels to add to the created configmap
+  # -- DEAD: nothing reads this
   labels: {}
   # -- JuiceFS format options. Separated by spaces
   # Example: "--inodes=1000000 --block-size=4M"
@@ -215,6 +255,14 @@ configMap:
   # Example: "--get-timeout=60 --put-timeout=60"
   # CE Ref: https://juicefs.com/docs/community/command_reference#gateway
   # EE Ref: https://juicefs.com/docs/cloud/reference/command_reference/#gateway
+  # Cache flags are NOT here - see the `cache:` block. They are rendered
+  # structurally and appended after this string, so an env that overrides `options`
+  # cannot accidentally drop them.
+  #
+  # Of the five flags below, only three change anything: --get-timeout=60 and
+  # --put-timeout=60 are already JuiceFS's own defaults. --keep-etag and --object-meta
+  # are off by default, and --refresh-iam-interval defaults to 5m (this is 10x more
+  # frequent - reason unknown, inherited).
   options: "--get-timeout=60 --put-timeout=60 --keep-etag --object-meta --refresh-iam-interval=30s"
 
 # -- Metrics configuration
@@ -291,6 +339,12 @@ fuse:
   
   # -- Mount path for the FUSE filesystem inside the container
   mountPath: "/jfs"
+
+  # -- Mount propagation for the FUSE mount. Keep "None" unless something outside this
+  # container has to see the mount. "Bidirectional" publishes it to the node, where it
+  # survives the process serving it: a dead endpoint then blocks the container from ever
+  # restarting AND blocks kubelet from unmounting it (mphr, 18h, 2026-08-17).
+  mountPropagation: None
   
   # -- JuiceFS mount options (space-separated)
   # Key flags for extended attributes:
@@ -301,7 +355,9 @@ fuse:
   #   --cache-size=N    Cache size in MiB (default: 102400 = 100GB)
   #   --cache-dir=PATH  Cache directory path (default: /var/jfsCache)
   # Ref: https://juicefs.com/docs/community/command_reference#mount
-  options: "--enable-xattr --cache-size=1024 --cache-dir=/cache"
+  # Cache flags removed - they now come from the top-level `cache:` block and are
+  # appended to this command, identically for the gateway and this client.
+  options: "--enable-xattr"
   
   # -- Resource limits and requests for FUSE sidecar container
   resources:
@@ -313,10 +369,8 @@ fuse:
       memory: 64Mi
   
   # -- Cache configuration for FUSE mount (uses emptyDir)
-  cache:
-    # -- Size limit for emptyDir cache
-    # Leave empty for no limit (uses node's available space)
-    emptyDirSize: "1Gi"
+  # cache: REMOVED - superseded by the top-level `cache:` block, which is shared by the
+  # gateway and this sidecar. fuse.cache.emptyDirSize is no longer read.
   
   # -- Security context for FUSE container
   # WARNING: Privileged mode is REQUIRED for FUSE mount operations

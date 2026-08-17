@@ -15,5 +15,14 @@ spec:
     - name: http-metrics
       port: {{ .Values.metricsPort }}
       targetPort: {{ .Values.metricsPort }}
+    {{- if .Values.fuse.enabled }}
+    # The fuse client's own metrics. Previously 9568 was declared as a containerPort and
+    # nothing else, so the sidecar was never scraped and there is no history for it - which
+    # is why "is anyone using the mount?" could not be answered from Prometheus.
+    - name: fuse-metrics
+      port: {{ .Values.fuse.metricsPort | default 9568 }}
+      targetPort: fuse-metrics
+      protocol: TCP
+    {{- end }}
   selector:
     {{- include "juicefs-s3-gateway.selectorLabels" . | nindent 4 }}
