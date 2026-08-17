@@ -82,3 +82,28 @@ Create the name of the configmap to use
 {{- required "configMap.name is required when configMap.create is false" .Values.configMap.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Cache flags for every JuiceFS client in the pod. Both clients must receive IDENTICAL
+values: each runs its own LRU eviction against the shared juicefs-cache volume, so a
+smaller --cache-size on one would continuously evict the other's blocks.
+
+--cache-size is in MiB, set to 80% of the volume. Exceeding it evicts cache blocks;
+exceeding the emptyDir sizeLimit evicts the POD. The gap absorbs JuiceFS's documented
+overshoot and the drift between the clients' periodic cache-index rescans.
+
+Integer math only: sprig `mul` casts every argument to int64, so `mul emptyDirSizeGi 1024 0.8`
+silently renders --cache-size=0. 1024 converts GiB->MiB, *4/5 applies the 80%, and the
+multiply must come before the divide or truncation loses the fraction.
+*/}}
+{{- define "juicefs-s3-gateway.cacheFlags" -}}
+{{- $c := .Values.cache | default dict -}}
+{{- $gi := $c.emptyDirSizeGi | default 0 | int -}}
+{{- if lt $gi 1 -}}
+{{- fail "cache.emptyDirSizeGi must be >= 1. There is no '0 = unlimited': 0 renders --cache-size=0 AND drops the emptyDir sizeLimit, giving an unbounded cache with no backstop - which is exactly how the gateway reached 75G on pw and 69G on nh-dev. For a large cache set a large number." -}}
+{{- end -}}
+{{- if not $c.dir -}}
+{{- fail "cache.dir must be set - it is both --cache-dir and the mountPath of the juicefs-cache volume. Empty renders --cache-dir= and JuiceFS silently falls back to $HOME/.juicefs/cache, i.e. the uncapped minio-config volume." -}}
+{{- end -}}
+--cache-dir={{ $c.dir }} --cache-size={{ div (mul $gi 1024 4) 5 }} --free-space-ratio={{ $c.freeSpaceRatio | default 0.2 }} --cache-expire={{ $c.expire | default "336h" }} --cache-mode={{ $c.mode | default "0660" }}
+{{- end }}

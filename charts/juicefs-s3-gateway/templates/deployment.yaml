@@ -7,6 +7,23 @@ metadata:
     {{- include "juicefs-s3-gateway.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  {{- if .Values.strategy }}
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+    {{- if and (eq (.Values.strategy.type | default "") "Recreate") (not (hasKey .Values.strategy "rollingUpdate")) }}
+    rollingUpdate: null
+    {{- end }}
+  {{- else if .Values.persistence.enabled }}
+  # persistence uses a ReadWriteOnce PVC. With the default RollingUpdate strategy and
+  # replicas: 1, maxUnavailable floors to 0, so the old pod must stay Ready until the new
+  # one is - but an RWO disk cannot attach to a second node, so when the new pod is
+  # scheduled elsewhere the rollout DEADLOCKS indefinitely with Multi-Attach errors.
+  # Observed live on champagne/prod during the 0.2.3 rollout, 2026-08-11.
+  # Recreate accepts a few seconds of gateway downtime instead of never completing.
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+  {{- end }}
   selector:
     matchLabels:
       {{- include "juicefs-s3-gateway.selectorLabels" . | nindent 6 }}
@@ -43,15 +60,19 @@ spec:
             {{- if .Values.secret.config.token }}
             - juicefs auth ${name} --token=${token} {{ if .Values.secret.config.bucket }}--bucket=${bucket}{{ end }}
             {{- else }}
-            - juicefs format ${metaurl} ${name} --storage=${storage} --bucket=${bucket} ${format_options}
+            # `juicefs format` does NOT skip on an existing volume: it re-applies every
+            # flag passed here on every pod start, and preserves ones that are absent
+            # (verified on champagne/dev 2026-08-15). So formatOptions overrides any
+            # `juicefs config` change; anything not listed here is volume state.
+            # Folded scalar: values are spliced into YAML now that the ConfigMap is gone,
+            # and in a plain scalar a ": " would parse the command into a map while a " #"
+            # would SILENTLY truncate the rest of the line. Inside >- both are literal.
+            - >-
+              juicefs format ${metaurl} ${name} --storage=${storage} --bucket=${bucket} {{ .Values.configMap.formatOptions | replace "\n" " " | trim }}
             {{- end }}
           envFrom:
             - secretRef:
                 name: {{ include "juicefs-s3-gateway.secretName" . }}
-            {{- if .Values.configMap.create }}
-            - configMapRef:
-                name: {{ include "juicefs-s3-gateway.configMapName" . }}
-            {{- end }}
           env:
             - name: name
               valueFrom:
@@ -63,13 +84,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
                   key: bucket
-            {{- if .Values.configMap.create }}
-            - name: format_options
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "juicefs-s3-gateway.configMapName" . }}
-                  key: format-options
-            {{- end }}
             {{- if .Values.secret.config.token }}
             - name: token
               valueFrom:
@@ -153,31 +167,36 @@ spec:
           command:
             - sh
             - -c
+            # Cache flags FIRST so configMap.options can still override one deliberately -
+            # JuiceFS takes the last occurrence. They are rendered structurally rather than
+            # kept in that string because overriding a string REPLACES it, and an env that
+            # dropped --cache-dir would send the cache back to the uncapped minio-config
+            # volume. Note that raising --cache-size this way past the emptyDir sizeLimit
+            # gets the POD evicted; size the cache with cache.emptyDirSizeGi, which moves
+            # the flag and the sizeLimit together.
+            #
+            # Folded scalar: the options are spliced in verbatim now that the ConfigMap is
+            # gone, and in a plain scalar a ": " parses the command into a map while a " #"
+            # SILENTLY truncates the rest of the line - taking the cache flags with it.
+            # Keep each command on ONE physical line: >- folds continuation lines, but a
+            # blank or extra-indented one survives as a real newline, which sh would read
+            # as a command separator. `replace "\n" " "` covers a multi-line options value.
             {{- if .Values.secret.config.token }}
-            - juicefs gateway ${name} 0.0.0.0:{{ .Values.port }} ${gateway_options} {{ if .Values.secret.config.rsaKey }}--rsa-key /root/rsa-key.pem{{ end }}
+            - >-
+              juicefs gateway ${name} 0.0.0.0:{{ .Values.port }} {{ include "juicefs-s3-gateway.cacheFlags" . }} {{ .Values.configMap.options | replace "\n" " " | trim }}{{ if .Values.secret.config.rsaKey }} --rsa-key /root/rsa-key.pem{{ end }}
             {{- else }}
-            - juicefs gateway ${metaurl} 0.0.0.0:{{ .Values.port }} --metrics=0.0.0.0:{{ .Values.metricsPort }} ${gateway_options} {{ if .Values.secret.config.rsaKey }}--rsa-key /root/rsa-key.pem{{ end }}
+            - >-
+              juicefs gateway ${metaurl} 0.0.0.0:{{ .Values.port }} --metrics=0.0.0.0:{{ .Values.metricsPort }} {{ include "juicefs-s3-gateway.cacheFlags" . }} {{ .Values.configMap.options | replace "\n" " " | trim }}{{ if .Values.secret.config.rsaKey }} --rsa-key /root/rsa-key.pem{{ end }}
             {{- end }}
           envFrom:
             - secretRef:
                 name: {{ include "juicefs-s3-gateway.secretName" . }}
-            {{- if .Values.configMap.create }}
-            - configMapRef:
-                name: {{ include "juicefs-s3-gateway.configMapName" . }}
-            {{- end }}
           env:
             - name: name
               valueFrom:
                 secretKeyRef:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
                   key: name
-            {{- if .Values.configMap.create }}
-            - name: gateway_options
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "juicefs-s3-gateway.configMapName" . }}
-                  key: gateway-options
-            {{- end }}
             {{- if .Values.secret.config.token }}
             - name: token
               valueFrom:
@@ -194,10 +213,7 @@ spec:
             - name: MINIO_NOTIFY_WEBHOOK_ENABLE_1
               value: "on"
             - name: MINIO_NOTIFY_WEBHOOK_ENDPOINT_1
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "juicefs-s3-gateway.configMapName" . }}
-                  key: webhook-endpoint
+              value: {{ .Values.configMap.webhookEndpoint | quote }}
             {{- if .Values.persistence.enabled }}
             - name: MINIO_NOTIFY_WEBHOOK_QUEUE_DIR_1
               value: "/messages"
@@ -255,6 +271,10 @@ spec:
               mountPath: /nonexistent
             - name: tmp
               mountPath: /tmp
+            # Without --cache-dir the gateway fell back to $HOME/.juicefs/cache, and
+            # $HOME is /nonexistent - i.e. the minio-config volume, which has no sizeLimit.
+            - name: juicefs-cache
+              mountPath: {{ .Values.cache.dir }}
             {{- if .Values.persistence.enabled }}
             - name: messages
               mountPath: /messages
@@ -368,30 +388,22 @@ spec:
               
               # Mount JuiceFS filesystem with FUSE
               {{- if .Values.secret.config.token }}
-              exec juicefs mount ${name} {{ .Values.fuse.mountPath }} ${mount_options}
+              # Same cacheFlags as the gateway - identical values are what make sharing
+              # one cache volume between the two clients safe. Same first/last ordering
+              # too, so an override behaves the same in both containers.
+              exec juicefs mount ${name} {{ .Values.fuse.mountPath }} --metrics=0.0.0.0:9568 {{ include "juicefs-s3-gateway.cacheFlags" . }} {{ .Values.fuse.options }}
               {{- else }}
-              exec juicefs mount ${metaurl} {{ .Values.fuse.mountPath }} --metrics=0.0.0.0:9568 ${mount_options}
+              exec juicefs mount ${metaurl} {{ .Values.fuse.mountPath }} --metrics=0.0.0.0:9568 {{ include "juicefs-s3-gateway.cacheFlags" . }} {{ .Values.fuse.options }}
               {{- end }}
           envFrom:
             - secretRef:
                 name: {{ include "juicefs-s3-gateway.secretName" . }}
-            {{- if .Values.configMap.create }}
-            - configMapRef:
-                name: {{ include "juicefs-s3-gateway.configMapName" . }}
-            {{- end }}
           env:
             - name: name
               valueFrom:
                 secretKeyRef:
                   name: {{ include "juicefs-s3-gateway.secretName" . }}
                   key: name
-            {{- if .Values.configMap.create }}
-            - name: mount_options
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "juicefs-s3-gateway.configMapName" . }}
-                  key: mount-options
-            {{- end }}
             {{- if .Values.secret.config.token }}
             - name: token
               valueFrom:
@@ -440,9 +452,19 @@ spec:
           volumeMounts:
             - name: fuse-mount-point
               mountPath: {{ .Values.fuse.mountPath }}
-              mountPropagation: Bidirectional
-            - name: fuse-cache
-              mountPath: /cache
+              # Bidirectional pushes this FUSE mount into the NODE's mount namespace, so
+              # it OUTLIVES the process that served it. When `juicefs mount` died on mphr
+              # the endpoint stayed behind with no daemon: every stat() on it returned
+              # ENOTCONN, containerd stats it while generating the container spec, so the
+              # container could never start again (restartCount stuck at 0), and kubelet's
+              # own TearDown stats it too, so kubelet could not unmount it either - it
+              # retried every 2m2s for 18h. Only a manual `umount -l` on the node cleared it.
+              # With None the mount lives and dies with the container's namespace, so the
+              # liveness probe can actually recover it. Set this back to Bidirectional only
+              # if something OUTSIDE the container needs to see the mount; nothing does today.
+              mountPropagation: {{ .Values.fuse.mountPropagation | default "None" }}
+            - name: juicefs-cache
+              mountPath: {{ .Values.cache.dir }}
             {{- if .Values.secret.config.token }}
             - mountPath: /root/.juicefs
               name: jfs-root-dir
@@ -486,6 +508,15 @@ spec:
           emptyDir: {}
         - name: tmp
           emptyDir: {}
+        # Shared by the gateway and the fuse client, so it must stay OUTSIDE the
+        # fuse.enabled gate below - otherwise disabling the sidecar leaves the gateway
+        # mounting a volume that does not exist. sizeLimit is a kubelet backstop that
+        # evicts the POD; --cache-size (80% of it) is the cap that should actually bind.
+        - name: juicefs-cache
+          emptyDir:
+            # Unconditional: the cacheFlags helper refuses to render with
+            # emptyDirSizeGi < 1, so there is no path to a volume without a sizeLimit.
+            sizeLimit: {{ .Values.cache.emptyDirSizeGi }}Gi
         {{- if .Values.persistence.enabled }}
         - name: messages
           persistentVolumeClaim:
@@ -511,11 +542,6 @@ spec:
         {{- if .Values.fuse.enabled }}
         - name: fuse-mount-point
           emptyDir: {}
-        - name: fuse-cache
-          emptyDir:
-            {{- if .Values.fuse.cache.emptyDirSize }}
-            sizeLimit: {{ .Values.fuse.cache.emptyDirSize }}
-            {{- end }}
         {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
