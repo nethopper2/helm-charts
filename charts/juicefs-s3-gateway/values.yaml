@@ -105,6 +105,12 @@ cache:
   # reading each other's blocks in the shared directory.
   mode: "0660"
 
+# -- Read/write buffer for the GATEWAY client, in MiB (--buffer-size). This is the main
+# tunable contributor to RSS: budget roughly 4x it for the memory limit. Floor is
+# max-uploads x block-size (20 x 4MiB = 80MiB) or writes stall. 300 is JuiceFS's own
+# default, pinned here so it is visible and cannot drift; 4x = ~1.2GiB against a 2Gi limit.
+bufferSizeMi: 300
+
 # -- Deployment update strategy. Leave unset and the chart picks Recreate whenever
 # persistence is enabled, because the messages PVC is ReadWriteOnce and RollingUpdate
 # deadlocks against it (see templates/deployment.yaml). Override only if you know the
@@ -358,7 +364,15 @@ fuse:
   # Cache flags removed - they now come from the top-level `cache:` block and are
   # appended to this command, identically for the gateway and this client.
   options: "--enable-xattr"
-  
+
+  # -- Read/write buffer for THIS client, in MiB. Deliberately below the gateway's 300:
+  # nothing reads the mount, so throughput is irrelevant, and 4x128 = ~512MiB keeps the
+  # working set inside the 512Mi limit below. Leaving it unset means JuiceFS's 300MiB
+  # default against that limit, i.e. ~1.2GiB expected vs 512Mi allowed - which is how
+  # mphr's sidecar OOMKilled at exactly 512.0 on two pod generations (2026-08-17), and
+  # bowen's has restarted 4 times. Do not go below ~96 (max-uploads x block-size floor).
+  bufferSizeMi: 128
+
   # -- Resource limits and requests for FUSE sidecar container
   resources:
     limits:
