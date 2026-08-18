@@ -1,0 +1,12 @@
+{{- if and .Values.websearch.enabled (not .Values.websearch.searxng.url) -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nh-rag.searxng.fullname" . }}
+  labels:
+    {{- include "nh-rag.labels" . | nindent 4 }}
+    app.kubernetes.io/component: searxng
+data:
+  settings.yml: |
+    {{- .Values.websearch.searxng.settings | nindent 4 }}
+{{- end }}

@@ -15,8 +15,45 @@
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "nh-rag.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
   echo http://$SERVICE_IP:{{ .Values.service.port }}
 {{- else if contains "ClusterIP" .Values.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "nh-rag.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "nh-rag.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=api" -o jsonpath="{.items[0].metadata.name}")
   export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+{{- if .Values.websearch.enabled }}
+
+2. Web search is enabled. The api and worker containers were configured with:
+
+     WEB_SEARCH_ENABLED = true
+     SEARXNG_URL        = {{ include "nh-rag.searxng.url" . }}
+     CRAWL4AI_URL       = {{ include "nh-rag.crawl4ai.url" . }}
+     CRAWL4AI_API_TOKEN = from Secret "{{ include "nh-rag.websearch.secretName" . }}"
+
+   That Secret is NOT created by this chart. It must already exist with both keys:
+
+     SEARXNG_SECRET, CRAWL4AI_API_TOKEN
+
+   Confirm the keys are present (values are not shown):
+
+     kubectl describe secret --namespace {{ .Release.Namespace }} {{ include "nh-rag.websearch.secretName" . }}
+{{- if .Values.websearch.searxng.url }}
+
+   SearXNG: using the external instance at {{ .Values.websearch.searxng.url }} (not deployed by this chart).
+{{- else }}
+
+   SearXNG was deployed as {{ include "nh-rag.searxng.fullname" . }}. Try it locally with:
+
+     kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "nh-rag.searxng.fullname" . }} 8080:{{ .Values.websearch.searxng.service.port }}
+     curl 'http://localhost:8080/search?q=test&format=json'
+{{- end }}
+{{- if .Values.websearch.crawl4ai.url }}
+
+   Crawl4AI: using the external instance at {{ .Values.websearch.crawl4ai.url }} (not deployed by this chart).
+{{- else }}
+
+   Crawl4AI was deployed as {{ include "nh-rag.crawl4ai.fullname" . }}. Try it locally with:
+
+     kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "nh-rag.crawl4ai.fullname" . }} 11235:{{ .Values.websearch.crawl4ai.service.port }}
+     curl http://localhost:11235/health
+{{- end }}
 {{- end }}

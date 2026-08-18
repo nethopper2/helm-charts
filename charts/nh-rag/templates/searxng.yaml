@@ -1,0 +1,117 @@
+{{- if and .Values.websearch.enabled (not .Values.websearch.searxng.url) -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nh-rag.searxng.fullname" . }}
+  labels:
+    {{- include "nh-rag.labels" . | nindent 4 }}
+    app.kubernetes.io/component: searxng
+spec:
+  replicas: {{ .Values.websearch.searxng.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "nh-rag.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: searxng
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/searxng-config.yaml") . | sha256sum }}
+        {{- with .Values.websearch.searxng.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "nh-rag.labels" . | nindent 8 }}
+        app.kubernetes.io/component: searxng
+        {{- with .Values.websearch.searxng.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "nh-rag.serviceAccountName" . }}
+      {{- with .Values.websearch.searxng.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: searxng
+          {{- with .Values.websearch.searxng.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.websearch.searxng.image.repository }}:{{ .Values.websearch.searxng.image.tag }}"
+          imagePullPolicy: {{ .Values.websearch.searxng.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          {{- if .Values.websearch.searxng.livenessProbe.enabled }}
+          livenessProbe:
+            {{- toYaml (omit .Values.websearch.searxng.livenessProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- if .Values.websearch.searxng.readinessProbe.enabled }}
+          readinessProbe:
+            {{- toYaml (omit .Values.websearch.searxng.readinessProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- with .Values.websearch.searxng.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: SEARXNG_BASE_URL
+              value: {{ .Values.websearch.searxng.baseUrl | default (printf "%s/" (include "nh-rag.searxng.url" .)) | quote }}
+            - name: SEARXNG_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nh-rag.websearch.secretName" . }}
+                  key: SEARXNG_SECRET
+            {{- with .Values.websearch.searxng.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            # subPath so the rest of /etc/searxng stays writable for the entrypoint
+            - name: settings
+              mountPath: /etc/searxng/settings.yml
+              subPath: settings.yml
+            - name: cache
+              mountPath: /var/cache/searxng
+      volumes:
+        - name: settings
+          configMap:
+            name: {{ include "nh-rag.searxng.fullname" . }}
+        - name: cache
+          emptyDir: {}
+      {{- with .Values.websearch.searxng.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.websearch.searxng.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.websearch.searxng.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nh-rag.searxng.fullname" . }}
+  labels:
+    {{- include "nh-rag.labels" . | nindent 4 }}
+    app.kubernetes.io/component: searxng
+spec:
+  type: {{ .Values.websearch.searxng.service.type }}
+  ports:
+    - port: {{ .Values.websearch.searxng.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "nh-rag.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: searxng
+{{- end }}

@@ -60,3 +60,49 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Names for the websearch workloads
+*/}}
+{{- define "nh-rag.searxng.fullname" -}}
+{{- printf "%s-searxng" (include "nh-rag.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{- define "nh-rag.crawl4ai.fullname" -}}
+{{- printf "%s-crawl4ai" (include "nh-rag.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Pre-created Secret holding the websearch credentials
+*/}}
+{{- define "nh-rag.websearch.secretName" -}}
+{{- required "websearch.secretName is required when websearch.enabled is true" .Values.websearch.secretName }}
+{{- end }}
+
+{{/*
+In-cluster URLs for the websearch services, overridable per component
+*/}}
+{{- define "nh-rag.searxng.url" -}}
+{{- default (printf "http://%s:%v" (include "nh-rag.searxng.fullname" .) .Values.websearch.searxng.service.port) .Values.websearch.searxng.url }}
+{{- end }}
+
+{{- define "nh-rag.crawl4ai.url" -}}
+{{- default (printf "http://%s:%v" (include "nh-rag.crawl4ai.fullname" .) .Values.websearch.crawl4ai.service.port) .Values.websearch.crawl4ai.url }}
+{{- end }}
+
+{{/*
+Websearch environment shared by the api and worker containers
+*/}}
+{{- define "nh-rag.websearch.env" -}}
+- name: WEB_SEARCH_ENABLED
+  value: "true"
+- name: SEARXNG_URL
+  value: {{ include "nh-rag.searxng.url" . | quote }}
+- name: CRAWL4AI_URL
+  value: {{ include "nh-rag.crawl4ai.url" . | quote }}
+- name: CRAWL4AI_API_TOKEN
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "nh-rag.websearch.secretName" . }}
+      key: CRAWL4AI_API_TOKEN
+{{- end }}
