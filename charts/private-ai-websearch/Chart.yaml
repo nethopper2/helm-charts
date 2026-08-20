@@ -1,6 +1,6 @@
 apiVersion: v2
-name: nh-rag
-description: A Helm chart for Kubernetes
+name: private-ai-websearch
+description: SearXNG metasearch and Crawl4AI headless-browser fetcher, for RAG web search
 
 # A chart can be either an 'application' or a 'library' chart.
 #
@@ -15,10 +15,9 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.1.16
+version: 0.1.0
 
-# This is the version number of the application being deployed. This version number should be
-# incremented each time you make changes to the application. Versions are not expected to
-# follow Semantic Versioning. They should reflect the version the application is using.
-# It is recommended to use it with quotes.
-appVersion: "v0.0.90"
+# This chart deploys two independent upstream components, so there is no single application
+# version to track here. The versions that actually ship are pinned per component in values.yaml
+# under searxng.image.tag and crawl4ai.image.tag.
+appVersion: "1.0.0"

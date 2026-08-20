@@ -62,17 +62,6 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Names for the websearch workloads
-*/}}
-{{- define "nh-rag.searxng.fullname" -}}
-{{- printf "%s-searxng" (include "nh-rag.fullname" .) | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{- define "nh-rag.crawl4ai.fullname" -}}
-{{- printf "%s-crawl4ai" (include "nh-rag.fullname" .) | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{/*
 Pre-created Secret holding the websearch credentials
 */}}
 {{- define "nh-rag.websearch.secretName" -}}
@@ -80,14 +69,15 @@ Pre-created Secret holding the websearch credentials
 {{- end }}
 
 {{/*
-In-cluster URLs for the websearch services, overridable per component
+URLs of the websearch services. They are deployed by the private-ai-websearch chart, not
+this one, so both must be supplied.
 */}}
 {{- define "nh-rag.searxng.url" -}}
-{{- default (printf "http://%s:%v" (include "nh-rag.searxng.fullname" .) .Values.websearch.searxng.service.port) .Values.websearch.searxng.url }}
+{{- required "websearch.searxngUrl is required when websearch.enabled is true (deploy the private-ai-websearch chart and point at its SearXNG Service)" .Values.websearch.searxngUrl }}
 {{- end }}
 
 {{- define "nh-rag.crawl4ai.url" -}}
-{{- default (printf "http://%s:%v" (include "nh-rag.crawl4ai.fullname" .) .Values.websearch.crawl4ai.service.port) .Values.websearch.crawl4ai.url }}
+{{- required "websearch.crawl4aiUrl is required when websearch.enabled is true (deploy the private-ai-websearch chart and point at its Crawl4AI Service)" .Values.websearch.crawl4aiUrl }}
 {{- end }}
 
 {{/*

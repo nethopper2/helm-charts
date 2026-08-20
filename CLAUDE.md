@@ -27,6 +27,7 @@ This is a Helm charts repository for Nethopper, containing multiple Kubernetes a
 - **juicefs-s3-gateway** (v0.1.4) - JuiceFS S3 Gateway for distributed file system access
 - **ragflow** (v0.1.0) - RAGFlow deployment with multiple data services
 - **nh-rag** (v0.1.1) - Nethopper RAG application
+- **private-ai-websearch** - SearXNG + Crawl4AI web search backend for nh-rag
 - **nh-frontend** - Frontend application
 - **log-bundle** - Logging stack (Loki, Promtail)
 - **gdrive-gcs-sync** - Google Drive to GCS synchronization

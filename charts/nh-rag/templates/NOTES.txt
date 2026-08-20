@@ -22,38 +22,24 @@
 {{- end }}
 {{- if .Values.websearch.enabled }}
 
-2. Web search is enabled. The api and worker containers were configured with:
+2. Web search is enabled. The api and worker containers were pointed at:
 
      WEB_SEARCH_ENABLED = true
      SEARXNG_URL        = {{ include "nh-rag.searxng.url" . }}
      CRAWL4AI_URL       = {{ include "nh-rag.crawl4ai.url" . }}
      CRAWL4AI_API_TOKEN = from Secret "{{ include "nh-rag.websearch.secretName" . }}"
 
-   That Secret is NOT created by this chart. It must already exist with both keys:
+   Neither component is deployed by this chart - they come from the private-ai-websearch
+   chart, and both must already be reachable at the URLs above. Check with:
+
+     kubectl get svc --namespace {{ .Release.Namespace }} -l app.kubernetes.io/name=private-ai-websearch
+
+   The Secret is not created by this chart either. It must already exist with both
+   keys (the same Secret the private-ai-websearch release uses):
 
      SEARXNG_SECRET, CRAWL4AI_API_TOKEN
 
    Confirm the keys are present (values are not shown):
 
      kubectl describe secret --namespace {{ .Release.Namespace }} {{ include "nh-rag.websearch.secretName" . }}
-{{- if .Values.websearch.searxng.url }}
-
-   SearXNG: using the external instance at {{ .Values.websearch.searxng.url }} (not deployed by this chart).
-{{- else }}
-
-   SearXNG was deployed as {{ include "nh-rag.searxng.fullname" . }}. Try it locally with:
-
-     kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "nh-rag.searxng.fullname" . }} 8080:{{ .Values.websearch.searxng.service.port }}
-     curl 'http://localhost:8080/search?q=test&format=json'
-{{- end }}
-{{- if .Values.websearch.crawl4ai.url }}
-
-   Crawl4AI: using the external instance at {{ .Values.websearch.crawl4ai.url }} (not deployed by this chart).
-{{- else }}
-
-   Crawl4AI was deployed as {{ include "nh-rag.crawl4ai.fullname" . }}. Try it locally with:
-
-     kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "nh-rag.crawl4ai.fullname" . }} 11235:{{ .Values.websearch.crawl4ai.service.port }}
-     curl http://localhost:11235/health
-{{- end }}
 {{- end }}

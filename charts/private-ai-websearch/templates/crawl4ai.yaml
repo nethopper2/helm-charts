@@ -1,28 +1,27 @@
-{{- if and .Values.websearch.enabled (not .Values.websearch.crawl4ai.url) -}}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "nh-rag.crawl4ai.fullname" . }}
+  name: {{ include "private-ai-websearch.crawl4ai.fullname" . }}
   labels:
-    {{- include "nh-rag.labels" . | nindent 4 }}
+    {{- include "private-ai-websearch.labels" . | nindent 4 }}
     app.kubernetes.io/component: crawl4ai
 spec:
-  replicas: {{ .Values.websearch.crawl4ai.replicaCount }}
+  replicas: {{ .Values.crawl4ai.replicaCount }}
   selector:
     matchLabels:
-      {{- include "nh-rag.selectorLabels" . | nindent 6 }}
+      {{- include "private-ai-websearch.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: crawl4ai
   template:
     metadata:
-      {{- with .Values.websearch.crawl4ai.podAnnotations }}
+      {{- with .Values.crawl4ai.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "nh-rag.labels" . | nindent 8 }}
+        {{- include "private-ai-websearch.labels" . | nindent 8 }}
         app.kubernetes.io/component: crawl4ai
-        {{- with .Values.websearch.crawl4ai.podLabels }}
+        {{- with .Values.crawl4ai.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -30,32 +29,36 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "nh-rag.serviceAccountName" . }}
-      {{- with .Values.websearch.crawl4ai.podSecurityContext }}
+      serviceAccountName: {{ include "private-ai-websearch.serviceAccountName" . }}
+      {{- with .Values.crawl4ai.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: crawl4ai
-          {{- with .Values.websearch.crawl4ai.securityContext }}
+          {{- with .Values.crawl4ai.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.websearch.crawl4ai.image.repository }}:{{ .Values.websearch.crawl4ai.image.tag }}"
-          imagePullPolicy: {{ .Values.websearch.crawl4ai.image.pullPolicy }}
+          image: "{{ .Values.crawl4ai.image.repository }}:{{ .Values.crawl4ai.image.tag }}"
+          imagePullPolicy: {{ .Values.crawl4ai.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 11235
               protocol: TCP
-          {{- if .Values.websearch.crawl4ai.livenessProbe.enabled }}
+          {{- if .Values.crawl4ai.startupProbe.enabled }}
+          startupProbe:
+            {{- toYaml (omit .Values.crawl4ai.startupProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- if .Values.crawl4ai.livenessProbe.enabled }}
           livenessProbe:
-            {{- toYaml (omit .Values.websearch.crawl4ai.livenessProbe "enabled") | nindent 12 }}
+            {{- toYaml (omit .Values.crawl4ai.livenessProbe "enabled") | nindent 12 }}
           {{- end }}
-          {{- if .Values.websearch.crawl4ai.readinessProbe.enabled }}
+          {{- if .Values.crawl4ai.readinessProbe.enabled }}
           readinessProbe:
-            {{- toYaml (omit .Values.websearch.crawl4ai.readinessProbe "enabled") | nindent 12 }}
+            {{- toYaml (omit .Values.crawl4ai.readinessProbe "enabled") | nindent 12 }}
           {{- end }}
-          {{- with .Values.websearch.crawl4ai.resources }}
+          {{- with .Values.crawl4ai.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -63,9 +66,9 @@ spec:
             - name: CRAWL4AI_API_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "nh-rag.websearch.secretName" . }}
+                  name: {{ include "private-ai-websearch.secretName" . }}
                   key: CRAWL4AI_API_TOKEN
-            {{- with .Values.websearch.crawl4ai.extraEnvVars }}
+            {{- with .Values.crawl4ai.extraEnvVars }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
           volumeMounts:
@@ -77,16 +80,16 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: {{ .Values.websearch.crawl4ai.shmSize }}
-      {{- with .Values.websearch.crawl4ai.nodeSelector }}
+            sizeLimit: {{ .Values.crawl4ai.shmSize }}
+      {{- with .Values.crawl4ai.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.websearch.crawl4ai.affinity }}
+      {{- with .Values.crawl4ai.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.websearch.crawl4ai.tolerations }}
+      {{- with .Values.crawl4ai.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -94,18 +97,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "nh-rag.crawl4ai.fullname" . }}
+  name: {{ include "private-ai-websearch.crawl4ai.fullname" . }}
   labels:
-    {{- include "nh-rag.labels" . | nindent 4 }}
+    {{- include "private-ai-websearch.labels" . | nindent 4 }}
     app.kubernetes.io/component: crawl4ai
 spec:
-  type: {{ .Values.websearch.crawl4ai.service.type }}
+  type: {{ .Values.crawl4ai.service.type }}
   ports:
-    - port: {{ .Values.websearch.crawl4ai.service.port }}
+    - port: {{ .Values.crawl4ai.service.port }}
       targetPort: http
       protocol: TCP
       name: http
   selector:
-    {{- include "nh-rag.selectorLabels" . | nindent 4 }}
+    {{- include "private-ai-websearch.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: crawl4ai
-{{- end }}

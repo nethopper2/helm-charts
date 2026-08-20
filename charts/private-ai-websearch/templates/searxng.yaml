@@ -1,29 +1,28 @@
-{{- if and .Values.websearch.enabled (not .Values.websearch.searxng.url) -}}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "nh-rag.searxng.fullname" . }}
+  name: {{ include "private-ai-websearch.searxng.fullname" . }}
   labels:
-    {{- include "nh-rag.labels" . | nindent 4 }}
+    {{- include "private-ai-websearch.labels" . | nindent 4 }}
     app.kubernetes.io/component: searxng
 spec:
-  replicas: {{ .Values.websearch.searxng.replicaCount }}
+  replicas: {{ .Values.searxng.replicaCount }}
   selector:
     matchLabels:
-      {{- include "nh-rag.selectorLabels" . | nindent 6 }}
+      {{- include "private-ai-websearch.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: searxng
   template:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/searxng-config.yaml") . | sha256sum }}
-        {{- with .Values.websearch.searxng.podAnnotations }}
+        {{- with .Values.searxng.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "nh-rag.labels" . | nindent 8 }}
+        {{- include "private-ai-websearch.labels" . | nindent 8 }}
         app.kubernetes.io/component: searxng
-        {{- with .Values.websearch.searxng.podLabels }}
+        {{- with .Values.searxng.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
@@ -31,44 +30,48 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "nh-rag.serviceAccountName" . }}
-      {{- with .Values.websearch.searxng.podSecurityContext }}
+      serviceAccountName: {{ include "private-ai-websearch.serviceAccountName" . }}
+      {{- with .Values.searxng.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: searxng
-          {{- with .Values.websearch.searxng.securityContext }}
+          {{- with .Values.searxng.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.websearch.searxng.image.repository }}:{{ .Values.websearch.searxng.image.tag }}"
-          imagePullPolicy: {{ .Values.websearch.searxng.image.pullPolicy }}
+          image: "{{ .Values.searxng.image.repository }}:{{ .Values.searxng.image.tag }}"
+          imagePullPolicy: {{ .Values.searxng.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
-          {{- if .Values.websearch.searxng.livenessProbe.enabled }}
+          {{- if .Values.searxng.startupProbe.enabled }}
+          startupProbe:
+            {{- toYaml (omit .Values.searxng.startupProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- if .Values.searxng.livenessProbe.enabled }}
           livenessProbe:
-            {{- toYaml (omit .Values.websearch.searxng.livenessProbe "enabled") | nindent 12 }}
+            {{- toYaml (omit .Values.searxng.livenessProbe "enabled") | nindent 12 }}
           {{- end }}
-          {{- if .Values.websearch.searxng.readinessProbe.enabled }}
+          {{- if .Values.searxng.readinessProbe.enabled }}
           readinessProbe:
-            {{- toYaml (omit .Values.websearch.searxng.readinessProbe "enabled") | nindent 12 }}
+            {{- toYaml (omit .Values.searxng.readinessProbe "enabled") | nindent 12 }}
           {{- end }}
-          {{- with .Values.websearch.searxng.resources }}
+          {{- with .Values.searxng.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
             - name: SEARXNG_BASE_URL
-              value: {{ .Values.websearch.searxng.baseUrl | default (printf "%s/" (include "nh-rag.searxng.url" .)) | quote }}
+              value: {{ .Values.searxng.baseUrl | default (printf "%s/" (include "private-ai-websearch.searxng.url" .)) | quote }}
             - name: SEARXNG_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "nh-rag.websearch.secretName" . }}
+                  name: {{ include "private-ai-websearch.secretName" . }}
                   key: SEARXNG_SECRET
-            {{- with .Values.websearch.searxng.extraEnvVars }}
+            {{- with .Values.searxng.extraEnvVars }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
           volumeMounts:
@@ -81,18 +84,18 @@ spec:
       volumes:
         - name: settings
           configMap:
-            name: {{ include "nh-rag.searxng.fullname" . }}
+            name: {{ include "private-ai-websearch.searxng.fullname" . }}
         - name: cache
           emptyDir: {}
-      {{- with .Values.websearch.searxng.nodeSelector }}
+      {{- with .Values.searxng.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.websearch.searxng.affinity }}
+      {{- with .Values.searxng.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.websearch.searxng.tolerations }}
+      {{- with .Values.searxng.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -100,18 +103,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "nh-rag.searxng.fullname" . }}
+  name: {{ include "private-ai-websearch.searxng.fullname" . }}
   labels:
-    {{- include "nh-rag.labels" . | nindent 4 }}
+    {{- include "private-ai-websearch.labels" . | nindent 4 }}
     app.kubernetes.io/component: searxng
 spec:
-  type: {{ .Values.websearch.searxng.service.type }}
+  type: {{ .Values.searxng.service.type }}
   ports:
-    - port: {{ .Values.websearch.searxng.service.port }}
+    - port: {{ .Values.searxng.service.port }}
       targetPort: http
       protocol: TCP
       name: http
   selector:
-    {{- include "nh-rag.selectorLabels" . | nindent 4 }}
+    {{- include "private-ai-websearch.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: searxng
-{{- end }}
