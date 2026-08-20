@@ -1215,6 +1215,16 @@ entries:
   nh-rag:
   - apiVersion: v2
     appVersion: v0.0.90
+    created: "2026-08-20T16:55:57.075059186Z"
+    description: A Helm chart for Kubernetes
+    digest: 1681c47fee179d8a7cb6565f0ffebe4b86e9c3bcc07a896de8f5850987dfca00
+    name: nh-rag
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/nh-rag-0.1.16/nh-rag-0.1.16.tgz
+    version: 0.1.16
+  - apiVersion: v2
+    appVersion: v0.0.90
     created: "2026-03-26T14:03:48.380238367Z"
     description: A Helm chart for Kubernetes
     digest: 3ab7672819faceb8b5357497c9a7b84397762a511ce9320033c4ab61c10a1039
@@ -1856,6 +1866,18 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/private-ai-storage-ui-0.1.0/private-ai-storage-ui-0.1.0.tgz
     version: 0.1.0
+  private-ai-websearch:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-08-20T16:55:57.208597412Z"
+    description: SearXNG metasearch and Crawl4AI headless-browser fetcher, for RAG
+      web search
+    digest: 0724f9a63a00b08dd4b92dc32da60ca588a6bd892d9a5127a09b3b12157be41e
+    name: private-ai-websearch
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/private-ai-websearch-0.1.0/private-ai-websearch-0.1.0.tgz
+    version: 0.1.0
   ragflow:
   - apiVersion: v2
     appVersion: dev
@@ -1867,4 +1889,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2026-08-17T12:50:12.178979708Z"
+generated: "2026-08-20T16:55:57.208847086Z"
