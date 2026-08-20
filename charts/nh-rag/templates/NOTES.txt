@@ -15,8 +15,31 @@
   export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "nh-rag.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
   echo http://$SERVICE_IP:{{ .Values.service.port }}
 {{- else if contains "ClusterIP" .Values.service.type }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "nh-rag.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "nh-rag.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=api" -o jsonpath="{.items[0].metadata.name}")
   export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+{{- if .Values.websearch.enabled }}
+
+2. Web search is enabled. The api and worker containers were pointed at:
+
+     WEB_SEARCH_ENABLED = true
+     SEARXNG_URL        = {{ include "nh-rag.searxng.url" . }}
+     CRAWL4AI_URL       = {{ include "nh-rag.crawl4ai.url" . }}
+     CRAWL4AI_API_TOKEN = from Secret "{{ include "nh-rag.websearch.secretName" . }}"
+
+   Neither component is deployed by this chart - they come from the private-ai-websearch
+   chart, and both must already be reachable at the URLs above. Check with:
+
+     kubectl get svc --namespace {{ .Release.Namespace }} -l app.kubernetes.io/name=private-ai-websearch
+
+   The Secret is not created by this chart either. It must already exist with both
+   keys (the same Secret the private-ai-websearch release uses):
+
+     SEARXNG_SECRET, CRAWL4AI_API_TOKEN
+
+   Confirm the keys are present (values are not shown):
+
+     kubectl describe secret --namespace {{ .Release.Namespace }} {{ include "nh-rag.websearch.secretName" . }}
 {{- end }}

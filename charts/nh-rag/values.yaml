@@ -251,3 +251,20 @@ worker:
   tolerations: []
   # Worker affinity
   affinity: {}
+
+# Web search (SearXNG metasearch + Crawl4AI headless-browser fetcher).
+# The components are deployed by the separate private-ai-websearch chart; this block
+# only points the api and worker at them, giving both containers
+# WEB_SEARCH_ENABLED, SEARXNG_URL, CRAWL4AI_URL and CRAWL4AI_API_TOKEN.
+websearch:
+  enabled: false
+
+  # Pre-created Secret with keys SEARXNG_SECRET and CRAWL4AI_API_TOKEN. Shared
+  # with the private-ai-websearch release. Required when enabled; never created here.
+  secretName: ""
+
+  # In-cluster URLs of the two Services, e.g. http://private-ai-websearch-searxng:8080.
+  # Add .<namespace>.svc.cluster.local if that release lives in another namespace.
+  # Both required when enabled; printed by the private-ai-websearch chart's NOTES.
+  searxngUrl: ""
+  crawl4aiUrl: ""

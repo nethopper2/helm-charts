@@ -60,3 +60,39 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Pre-created Secret holding the websearch credentials
+*/}}
+{{- define "nh-rag.websearch.secretName" -}}
+{{- required "websearch.secretName is required when websearch.enabled is true" .Values.websearch.secretName }}
+{{- end }}
+
+{{/*
+URLs of the websearch services. They are deployed by the private-ai-websearch chart, not
+this one, so both must be supplied.
+*/}}
+{{- define "nh-rag.searxng.url" -}}
+{{- required "websearch.searxngUrl is required when websearch.enabled is true (deploy the private-ai-websearch chart and point at its SearXNG Service)" .Values.websearch.searxngUrl }}
+{{- end }}
+
+{{- define "nh-rag.crawl4ai.url" -}}
+{{- required "websearch.crawl4aiUrl is required when websearch.enabled is true (deploy the private-ai-websearch chart and point at its Crawl4AI Service)" .Values.websearch.crawl4aiUrl }}
+{{- end }}
+
+{{/*
+Websearch environment shared by the api and worker containers
+*/}}
+{{- define "nh-rag.websearch.env" -}}
+- name: WEB_SEARCH_ENABLED
+  value: "true"
+- name: SEARXNG_URL
+  value: {{ include "nh-rag.searxng.url" . | quote }}
+- name: CRAWL4AI_URL
+  value: {{ include "nh-rag.crawl4ai.url" . | quote }}
+- name: CRAWL4AI_API_TOKEN
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "nh-rag.websearch.secretName" . }}
+      key: CRAWL4AI_API_TOKEN
+{{- end }}

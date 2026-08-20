@@ -1,0 +1,32 @@
+SearXNG and Crawl4AI are installed.
+
+1. Point a consumer at them. For nh-rag, set these values:
+
+     websearch:
+       enabled: true
+       secretName: {{ .Values.secretName }}
+       searxngUrl: {{ include "private-ai-websearch.searxng.url" . }}
+       crawl4aiUrl: {{ include "private-ai-websearch.crawl4ai.url" . }}
+
+   The consumer must run in this namespace ({{ .Release.Namespace }}), or the URLs need the
+   .{{ .Release.Namespace }}.svc.cluster.local suffix.
+
+2. The Secret "{{ include "private-ai-websearch.secretName" . }}" is NOT created by this chart.
+   It must already exist with both keys:
+
+     SEARXNG_SECRET, CRAWL4AI_API_TOKEN
+
+   Confirm the keys are present (values are not shown):
+
+     kubectl describe secret --namespace {{ .Release.Namespace }} {{ include "private-ai-websearch.secretName" . }}
+
+3. Try the components locally:
+
+     kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "private-ai-websearch.searxng.fullname" . }} 8080:{{ .Values.searxng.service.port }}
+     curl 'http://localhost:8080/search?q=test&format=json'
+
+     kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "private-ai-websearch.crawl4ai.fullname" . }} 11235:{{ .Values.crawl4ai.service.port }}
+     curl http://localhost:11235/health
+
+   A 403 from SearXNG means searxng.settings lost `json` from search.formats;
+   a 429 means server.limiter was turned back on.

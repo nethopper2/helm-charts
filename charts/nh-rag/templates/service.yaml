@@ -4,6 +4,7 @@ metadata:
   name: {{ include "nh-rag.fullname" . }}
   labels:
     {{- include "nh-rag.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
 spec:
   type: {{ .Values.service.type }}
   ports:

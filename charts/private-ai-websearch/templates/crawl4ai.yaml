@@ -1,0 +1,113 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "private-ai-websearch.crawl4ai.fullname" . }}
+  labels:
+    {{- include "private-ai-websearch.labels" . | nindent 4 }}
+    app.kubernetes.io/component: crawl4ai
+spec:
+  replicas: {{ .Values.crawl4ai.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "private-ai-websearch.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: crawl4ai
+  template:
+    metadata:
+      {{- with .Values.crawl4ai.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "private-ai-websearch.labels" . | nindent 8 }}
+        app.kubernetes.io/component: crawl4ai
+        {{- with .Values.crawl4ai.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "private-ai-websearch.serviceAccountName" . }}
+      {{- with .Values.crawl4ai.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: crawl4ai
+          {{- with .Values.crawl4ai.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.crawl4ai.image.repository }}:{{ .Values.crawl4ai.image.tag }}"
+          imagePullPolicy: {{ .Values.crawl4ai.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 11235
+              protocol: TCP
+          {{- if .Values.crawl4ai.startupProbe.enabled }}
+          startupProbe:
+            {{- toYaml (omit .Values.crawl4ai.startupProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- if .Values.crawl4ai.livenessProbe.enabled }}
+          livenessProbe:
+            {{- toYaml (omit .Values.crawl4ai.livenessProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- if .Values.crawl4ai.readinessProbe.enabled }}
+          readinessProbe:
+            {{- toYaml (omit .Values.crawl4ai.readinessProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- with .Values.crawl4ai.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            - name: CRAWL4AI_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "private-ai-websearch.secretName" . }}
+                  key: CRAWL4AI_API_TOKEN
+            {{- with .Values.crawl4ai.extraEnvVars }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            # RAM-backed emptyDir: k8s has no shm-size knob and Chromium
+            # crashes on the 64Mi /dev/shm default
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ .Values.crawl4ai.shmSize }}
+      {{- with .Values.crawl4ai.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.crawl4ai.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.crawl4ai.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "private-ai-websearch.crawl4ai.fullname" . }}
+  labels:
+    {{- include "private-ai-websearch.labels" . | nindent 4 }}
+    app.kubernetes.io/component: crawl4ai
+spec:
+  type: {{ .Values.crawl4ai.service.type }}
+  ports:
+    - port: {{ .Values.crawl4ai.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "private-ai-websearch.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: crawl4ai

@@ -149,6 +149,9 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.config.juiceFsSecretName }}
                   key: bucket
+            {{- if .Values.websearch.enabled }}
+            {{- include "nh-rag.websearch.env" . | nindent 12 }}
+            {{- end }}
             {{- if .Values.worker.extraEnvVars }}
               {{- toYaml .Values.worker.extraEnvVars | nindent 12 }}
             {{- end }}
