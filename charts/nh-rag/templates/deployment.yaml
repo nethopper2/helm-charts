@@ -145,6 +145,9 @@ spec:
             {{- if .Values.websearch.enabled }}
             {{- include "nh-rag.websearch.env" . | nindent 12 }}
             {{- end }}
+            {{- if .Values.workspaceSandbox.enabled }}
+            {{- include "nh-rag.workspaceSandbox.env" . | nindent 12 }}
+            {{- end }}
             {{- if .Values.extraEnvVars }}
               {{- toYaml .Values.extraEnvVars | nindent 12 }}
             {{- end }}

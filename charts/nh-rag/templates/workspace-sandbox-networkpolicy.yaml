@@ -1,0 +1,32 @@
+{{- if .Values.workspaceSandbox.enabled }}
+{{- /*
+Airgap for every workspace sandbox pod (Intel labels each Sandbox pod with
+app=nh-workspace-sandbox). Egress: none at all — the runtime never dials out
+(no DNS either; Intel resolves the sandbox's Service FQDN itself). Ingress:
+only this chart's api pods on the runtime port.
+*/}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "nh-rag.fullname" . }}-workspace-sandbox-airgap
+  namespace: {{ .Values.workspaceSandbox.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "nh-rag.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: nh-workspace-sandbox
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              {{- include "nh-rag.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.workspaceSandbox.port }}
+  egress: []
+{{- end }}
