@@ -129,6 +129,36 @@ env:
   # QDRANT_URL: "http://localhost:6333"
   # DATABASE_URL: "connection string"
 
+# Workspace sandboxes — per-conversation isolated exec environments for the
+# workspace subagent. Intel provisions one agent-sandbox `Sandbox` CR
+# (agents.x-k8s.io/v1beta1) per conversation; the controller turns it into a
+# dedicated pod (optionally under a hardened RuntimeClass) + headless Service.
+# Prerequisites (cluster-level, outside this chart):
+#   - agent-sandbox controller + CRDs installed
+#   - RuntimeClass for the chosen isolation tier (kata-clh needs KVM nodes;
+#     gvisor works anywhere; empty = plain runc, dev only)
+workspaceSandbox:
+  enabled: false
+  image:
+    repository: nethopper/nh-workspace-runtime
+    tag: "latest"
+  # kata-clh | gvisor | "" (runc, dev only)
+  runtimeClassName: ""
+  # Namespace for Sandbox CRs; defaults to the release namespace.
+  namespace: ""
+  port: 8081
+  ttlSeconds: 3600
+  readyTimeoutSeconds: 120
+  subagentBudgetSeconds: 300
+  sandboxResources:
+    cpuLimit: "1"
+    memoryLimit: 2Gi
+  # HMAC key for deriving per-sandbox API tokens. Either set tokenSecret to
+  # create a Secret from values, or set existingSecret to the name of a Secret
+  # carrying key WORKSPACE_SANDBOX_TOKEN_SECRET.
+  tokenSecret: ""
+  existingSecret: ""
+
 # Additional environment variables for the API container
 extraEnvVars: []
 

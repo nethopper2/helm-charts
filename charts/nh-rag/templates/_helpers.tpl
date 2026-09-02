@@ -96,3 +96,51 @@ Websearch environment shared by the api and worker containers
       name: {{ include "nh-rag.websearch.secretName" . }}
       key: CRAWL4AI_API_TOKEN
 {{- end }}
+
+{{/*
+Name of the Secret holding the workspace sandbox HMAC token secret.
+*/}}
+{{- define "nh-rag.workspaceSandbox.secretName" -}}
+{{- if .Values.workspaceSandbox.existingSecret -}}
+{{- .Values.workspaceSandbox.existingSecret -}}
+{{- else -}}
+{{- include "nh-rag.fullname" . }}-workspace-sandbox
+{{- end -}}
+{{- end }}
+
+{{/*
+Workspace sandbox environment for the api container (per-conversation
+agent-sandbox CRs provisioned by Intel; see docs/workspace-sandbox-deploy.md
+in nh-rag-embedding).
+*/}}
+{{- define "nh-rag.workspaceSandbox.env" -}}
+- name: WORKSPACE_RUNTIME_ENABLED
+  value: "true"
+- name: WORKSPACE_SANDBOX_ENABLED
+  value: "true"
+- name: WORKSPACE_SANDBOX_NAMESPACE
+  value: {{ .Values.workspaceSandbox.namespace | default .Release.Namespace | quote }}
+- name: WORKSPACE_SANDBOX_IMAGE
+  value: "{{ .Values.workspaceSandbox.image.repository }}:{{ .Values.workspaceSandbox.image.tag }}"
+{{- if .Values.workspaceSandbox.runtimeClassName }}
+- name: WORKSPACE_SANDBOX_RUNTIME_CLASS
+  value: {{ .Values.workspaceSandbox.runtimeClassName | quote }}
+{{- end }}
+- name: WORKSPACE_SANDBOX_PORT
+  value: {{ .Values.workspaceSandbox.port | quote }}
+- name: WORKSPACE_SANDBOX_TTL_S
+  value: {{ .Values.workspaceSandbox.ttlSeconds | quote }}
+- name: WORKSPACE_SANDBOX_READY_TIMEOUT_S
+  value: {{ .Values.workspaceSandbox.readyTimeoutSeconds | quote }}
+- name: WORKSPACE_SANDBOX_CPU_LIMIT
+  value: {{ .Values.workspaceSandbox.sandboxResources.cpuLimit | quote }}
+- name: WORKSPACE_SANDBOX_MEM_LIMIT
+  value: {{ .Values.workspaceSandbox.sandboxResources.memoryLimit | quote }}
+- name: WORKSPACE_SANDBOX_TOKEN_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "nh-rag.workspaceSandbox.secretName" . }}
+      key: WORKSPACE_SANDBOX_TOKEN_SECRET
+- name: WORKSPACE_SUBAGENT_BUDGET_S
+  value: {{ .Values.workspaceSandbox.subagentBudgetSeconds | quote }}
+{{- end }}

@@ -1,0 +1,35 @@
+{{- if .Values.workspaceSandbox.enabled }}
+{{- /*
+Lets the api ServiceAccount manage agent-sandbox Sandbox CRs so Intel can
+provision one isolated exec pod per conversation. Namespaced Role on purpose:
+Intel must not touch sandboxes outside its own namespace.
+Requires the agent-sandbox controller + CRDs installed in the cluster.
+*/}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "nh-rag.fullname" . }}-workspace-sandbox
+  namespace: {{ .Values.workspaceSandbox.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "nh-rag.labels" . | nindent 4 }}
+rules:
+  - apiGroups: ["agents.x-k8s.io"]
+    resources: ["sandboxes"]
+    verbs: ["get", "list", "watch", "create", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "nh-rag.fullname" . }}-workspace-sandbox
+  namespace: {{ .Values.workspaceSandbox.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "nh-rag.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "nh-rag.fullname" . }}-workspace-sandbox
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "nh-rag.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
