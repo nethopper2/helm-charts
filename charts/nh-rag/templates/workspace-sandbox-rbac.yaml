@@ -16,6 +16,12 @@ rules:
   - apiGroups: ["agents.x-k8s.io"]
     resources: ["sandboxes"]
     verbs: ["get", "list", "watch", "create", "patch", "delete"]
+  # Per-sandbox token Secrets (<sandbox>-token), owned by the Sandbox CR so
+  # GC removes them with it. Namespaced scope; resourceNames can't express a
+  # prefix, hence unrestricted secret verbs within this namespace only.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
