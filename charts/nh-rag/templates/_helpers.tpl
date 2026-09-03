@@ -132,6 +132,12 @@ in nh-rag-embedding).
   value: {{ .Values.workspaceSandbox.ttlSeconds | quote }}
 - name: WORKSPACE_SANDBOX_READY_TIMEOUT_S
   value: {{ .Values.workspaceSandbox.readyTimeoutSeconds | quote }}
+- name: WORKSPACE_SANDBOX_PER_USER_CAP
+  value: {{ .Values.workspaceSandbox.perUserCap | quote }}
+- name: WORKSPACE_SANDBOX_CPU_REQUEST
+  value: {{ .Values.workspaceSandbox.sandboxResources.cpuRequest | quote }}
+- name: WORKSPACE_SANDBOX_MEM_REQUEST
+  value: {{ .Values.workspaceSandbox.sandboxResources.memoryRequest | quote }}
 - name: WORKSPACE_SANDBOX_CPU_LIMIT
   value: {{ .Values.workspaceSandbox.sandboxResources.cpuLimit | quote }}
 - name: WORKSPACE_SANDBOX_MEM_LIMIT

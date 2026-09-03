@@ -147,10 +147,16 @@ workspaceSandbox:
   # Namespace for Sandbox CRs; defaults to the release namespace.
   namespace: ""
   port: 8081
-  ttlSeconds: 3600
+  ttlSeconds: 1800
   readyTimeoutSeconds: 120
   subagentBudgetSeconds: 300
+  # Max live sandboxes per user; oldest is recycled when exceeded.
+  perUserCap: 4
   sandboxResources:
+    # Requests sized for the idle profile (~4m/45Mi measured) so sandboxes
+    # pack densely; limits stay high for bursty renders.
+    cpuRequest: 50m
+    memoryRequest: 128Mi
     cpuLimit: "1"
     memoryLimit: 2Gi
   # HMAC key for deriving per-sandbox API tokens. Either set tokenSecret to
