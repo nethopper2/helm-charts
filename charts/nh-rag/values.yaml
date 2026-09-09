@@ -4,10 +4,11 @@
 
 # shared config options
 global: {}
-  # googleApplicationCredentialsSecretRef: ""
+  # googleApplicationCredentialsSecretRef: ""  # Secret with GOOGLE_APPLICATION_CREDENTIALS_BASE64 (GCS + Vertex AI)
   # extraEnvVarsCM: ""
   # extraEnvVarsSecret: ""
-  # awsOpenAIKeySecretRef: ""
+  # awsOpenAIKeySecretRef: ""     # Secret with AWS creds for Bedrock (LLM_PROVIDER=bedrock)
+  # azureOpenAIKeySecretRef: ""   # Secret with AZURE_OPENAI_API_KEY (LLM_PROVIDER=azure)
 
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
@@ -124,6 +125,20 @@ env:
   BATCH_SIZE: 10
   EMBEDDING_BATCH_SIZE: 50
   # BEDROCK_MODEL_PROVIDER: ""
+  # --- Cloud AI provider (deploy-time; one per install). All optional: unset
+  # renders exactly the historical Bedrock-only env. Contract:
+  # nh-rag-embedding docs/llm-providers.md
+  # LLM_PROVIDER: "bedrock"          # bedrock | vertex | azure
+  # LLM_MODEL_ID: ""                 # provider-native model ID; empty → BEDROCK_MODEL_ID
+  # LLM_MODEL_FAMILY: ""             # claude | gpt | gemini | default (Azure deployment names)
+  # GOOGLE_CLOUD_PROJECT: ""         # vertex
+  # GOOGLE_CLOUD_LOCATION: ""        # vertex (default us-central1)
+  # AZURE_OPENAI_ENDPOINT: ""        # azure
+  # AZURE_OPENAI_API_VERSION: ""     # azure (default 2024-10-21)
+  # EMBEDDINGS_PROVIDER: ""          # ollama | bedrock | vertex | azure (usually via shared configmap)
+  # EMBEDDINGS_DIMENSION: ""
+  # VERTEX_EMBEDDINGS_MODEL: ""      # vertex (default text-embedding-004)
+  # AZURE_EMBEDDINGS_DEPLOYMENT: ""  # azure
   # LLAMAINDEX_OLLAMA_BASE_URL: "http://localhost:11434"
   # GCS_BUCKET_NAME: "bowen-brain"
   # QDRANT_URL: "http://localhost:6333"
