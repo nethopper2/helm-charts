@@ -159,3 +159,22 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Prometheus metrics collection. The server exposes prometheus_client metrics at /metrics
+# (mcp_tool_calls_total, mcp_tool_duration_seconds, mcp_upstream_errors_total, ...).
+metrics:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    namespace: ""
+    labels: {}
+    annotations: {}
+    jobLabel: "app.kubernetes.io/name"
+    port: "http"
+    path: "/metrics"
+    interval: "30s"
+    scrapeTimeout: "10s"
+    honorLabels: false
+    selector: {}
+    metricRelabelings: []
+    relabelings: []
