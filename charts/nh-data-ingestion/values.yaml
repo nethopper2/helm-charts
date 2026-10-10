@@ -13,7 +13,11 @@ global: {}
   # extraEnvVarsCM: "shared-configmap-rag"  # Provided by parent
   # extraEnvVarsSecret: "shared-secrets-rag"  # Provided by parent
   # dataIngestionCredsRef: ""  # Secret containing data ingestion specific credentials (e.g., OAuth tokens, API keys)
-  # awsOpenAIKeySecretRef: ""  # Secret containing AWS/OpenAI credentials (shared with nh-rag)
+  # awsOpenAIKeySecretRef: ""  # Secret containing AWS/OpenAI credentials (shared with nh-rag; EMBEDDINGS_PROVIDER=bedrock)
+  # azureOpenAIKeySecretRef: ""  # Secret containing AZURE_OPENAI_API_KEY (EMBEDDINGS_PROVIDER=azure)
+  # googleApplicationCredentialsSecretRef: ""  # Secret with GOOGLE_APPLICATION_CREDENTIALS_BASE64 (EMBEDDINGS_PROVIDER=vertex)
+  # Provider selection itself (EMBEDDINGS_PROVIDER, EMBEDDINGS_DIMENSION, *_EMBEDDINGS_MODEL,
+  # GOOGLE_CLOUD_PROJECT/LOCATION, AZURE_OPENAI_ENDPOINT/API_VERSION) arrives via extraEnvVarsCM.
 
 # Image pull secrets
 imagePullSecrets: []
