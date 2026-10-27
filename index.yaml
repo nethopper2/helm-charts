@@ -1225,6 +1225,16 @@ entries:
   nh-rag:
   - apiVersion: v2
     appVersion: v0.0.90
+    created: "2026-10-27T17:23:11.380609744Z"
+    description: A Helm chart for Kubernetes
+    digest: a155a7d92272d3704255c43f270f77ba7f5774b7f3332ae355db8b34b2fdcf74
+    name: nh-rag
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/nh-rag-0.1.19/nh-rag-0.1.19.tgz
+    version: 0.1.19
+  - apiVersion: v2
+    appVersion: v0.0.90
     created: "2026-09-03T10:46:53.908934179Z"
     description: A Helm chart for Kubernetes
     digest: fa49e0b24fbda2a488e1b94114d2bf573e81970c7b83bf3d04e0d729ec1e8194
@@ -1919,4 +1929,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-08T12:13:10.475085171Z"
+generated: "2026-10-27T17:23:11.381263872Z"
