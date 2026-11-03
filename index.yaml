@@ -739,6 +739,16 @@ entries:
   nh-ai-benchmark:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2026-11-03T13:20:34.940583204Z"
+    description: A Helm chart for Kubernetes
+    digest: ef74b4087035910c3c7608de4ccdf618388c4a4e57efac0386da5af07957e6df
+    name: nh-ai-benchmark
+    type: application
+    urls:
+    - https://github.com/nethopper2/helm-charts/releases/download/nh-ai-benchmark-0.2.4/nh-ai-benchmark-0.2.4.tgz
+    version: 0.2.4
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2026-07-06T23:41:30.734707849Z"
     description: A Helm chart for Kubernetes
     digest: dff21a58b84528c048da66f354a8c7c2793fa31a101334a0e61da2db83fa6e3b
@@ -1929,4 +1939,4 @@ entries:
     urls:
     - https://github.com/nethopper2/helm-charts/releases/download/ragflow-0.1.0/ragflow-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-27T17:23:11.381263872Z"
+generated: "2026-11-03T13:20:34.940920253Z"
