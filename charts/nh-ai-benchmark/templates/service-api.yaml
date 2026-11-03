@@ -11,5 +11,10 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+  # selectorLabels alone (name + instance) ALSO matches the UI pods, and because both containers
+  # name their port "http", targetPort resolved to 8098 on the API pod and 80 on the UI pod -- so
+  # this Service had two endpoints and ~half of all API requests were answered by the UI's nginx
+  # with index.html. That includes the UI's own /api/ proxy, which goes through this Service.
   selector:
     {{- include "nh-ai-benchmark.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: api
