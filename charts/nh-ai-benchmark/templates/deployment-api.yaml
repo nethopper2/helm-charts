@@ -26,6 +26,11 @@ spec:
       {{- end }}
       labels:
         {{- include "nh-ai-benchmark.labels" . | nindent 8 }}
+        # Distinguishes API pods from the UI pods, which carry the same name+instance labels.
+        # service-api.yaml selects on it. Deliberately NOT added to .spec.selector.matchLabels
+        # above: that field is immutable on an existing Deployment, and it does not need to
+        # change -- a pod with an extra label still matches the old selector.
+        app.kubernetes.io/component: api
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
