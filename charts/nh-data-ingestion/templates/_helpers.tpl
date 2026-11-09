@@ -186,6 +186,15 @@ Uses shared secrets from parent chart (private-ai-rag):
 {{- define "nh-data-ingestion.commonEnv" -}}
 - name: REDIS_URL
   value: {{ .Values.config.redisUrl | quote }}
+{{- if .Values.global.googleApplicationCredentialsSecretRef }}
+# Vertex AI embeddings (EMBEDDINGS_PROVIDER=vertex): base64 service-account JSON.
+# Omit under GKE workload identity — Application Default Credentials apply.
+- name: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.global.googleApplicationCredentialsSecretRef }}
+      key: GOOGLE_APPLICATION_CREDENTIALS_BASE64
+{{- end }}
 - name: DATABASE_URL
   valueFrom:
     secretKeyRef:
@@ -254,5 +263,9 @@ Common envFrom for all components
 {{- if .Values.global.awsOpenAIKeySecretRef }}
 - secretRef:
     name: {{ .Values.global.awsOpenAIKeySecretRef }}
+{{- end }}
+{{- if .Values.global.azureOpenAIKeySecretRef }}
+- secretRef:
+    name: {{ .Values.global.azureOpenAIKeySecretRef }}
 {{- end }}
 {{- end }}

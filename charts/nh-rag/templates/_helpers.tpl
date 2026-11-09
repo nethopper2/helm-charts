@@ -150,3 +150,19 @@ in nh-rag-embedding).
 - name: WORKSPACE_SUBAGENT_BUDGET_S
   value: {{ .Values.workspaceSandbox.subagentBudgetSeconds | quote }}
 {{- end }}
+
+{{/*
+Cloud AI provider env (LLM + embeddings). Every key is optional so existing
+Bedrock installs render unchanged; see nh-rag-embedding docs/llm-providers.md.
+Values are read from .Values.env so umbrella charts can set them per alias.
+*/}}
+{{- define "nh-rag.llmProvider.env" -}}
+{{- $keys := list "LLM_PROVIDER" "LLM_MODEL_ID" "LLM_MODEL_FAMILY" "LLM_READ_TIMEOUT_S" "LLM_PLANNER_READ_TIMEOUT_S" "MODEL_CONTEXT_LIMIT" "MODEL_OUTPUT_LIMIT" "GOOGLE_CLOUD_PROJECT" "GOOGLE_CLOUD_LOCATION" "AZURE_OPENAI_ENDPOINT" "AZURE_OPENAI_API_VERSION" "EMBEDDINGS_PROVIDER" "EMBEDDINGS_DIMENSION" "BEDROCK_EMBEDDINGS_MODEL" "BEDROCK_EMBEDDINGS_REGION" "VERTEX_EMBEDDINGS_MODEL" "AZURE_EMBEDDINGS_DEPLOYMENT" -}}
+{{- range $key := $keys }}
+{{- $val := index $.Values.env $key }}
+{{- if $val }}
+- name: {{ $key }}
+  value: {{ $val | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
