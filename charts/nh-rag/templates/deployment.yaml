@@ -150,6 +150,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.config.juiceFsSecretName }}
                   key: bucket
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.dataIngestionCredsRef }}
+                  key: ENCRYPTION_KEY
             {{- if .Values.websearch.enabled }}
             {{- include "nh-rag.websearch.env" . | nindent 12 }}
             {{- end }}
