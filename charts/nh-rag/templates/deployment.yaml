@@ -157,9 +157,10 @@ spec:
                   key: ENCRYPTION_KEY
             - name: ODOO_AUTH_MODE
               valueFrom:
-                secretKeyRef: 
+                secretKeyRef:
                   name: {{ .Values.global.dataIngestionCredsRef }}
                   key: ODOO_AUTH_MODE
+                  optional: true
             {{- if .Values.websearch.enabled }}
             {{- include "nh-rag.websearch.env" . | nindent 12 }}
             {{- end }}
